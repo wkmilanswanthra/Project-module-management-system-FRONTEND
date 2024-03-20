@@ -1,12 +1,6 @@
 import React from "react";
 import Sidebar from "../components/Sidebar/Sidebar";
-import { Route, Routes } from "react-router-dom";
-import StudentsContainer from "../features/dashboard/components/StudentsContainer";
-import FacultyContainer from "../features/dashboard/components/FacultyContainer";
-import Projectscontainer from "../features/dashboard/components/ProjectsContainer";
-import SemesterContainer from "../features/dashboard/components/SemesterContainer";
-import MarksheetsContainer from "../features/dashboard/components/MarksheetsContainer";
-import AssessmentsContainer from "../features/dashboard/components/AssessmentsContainer";
+import { Outlet } from "react-router-dom";
 
 const menuItems = [
   {
@@ -26,29 +20,52 @@ const menuItems = [
     path: "/assessments",
   },
   {
+    name: "Rubrics",
+    path: "/rubrics",
+  },
+  {
     name: "Marksheets",
     path: "/marksheets",
   },
   {
     name: "Semesters",
-    path: "/semsters",
+    path: "/semesters",
+  },
+  {
+    name: "Schedule",
+    path: "/schedule",
+  },
+  {
+    name: "Groups",
+    path: "/groups",
+  },
+];
+
+const subMenuItems = [
+  {
+    name: "Create Assessment",
+    path: "/assessments/create",
+  },
+  {
+    name: "Create Rubric",
+    path: "/rubrics/create",
+  },
+  {
+    name: "Schedule a Presentation",
+    path: "/schedule/create",
+  },
+  {
+    name: "Create Marksheet",
+    path: "/marksheets/new",
   },
 ];
 
 function Dashboard() {
   return (
     <>
-      <Sidebar menuItems={menuItems} />
-      <div class="p-4 sm:ml-64">
-        <Routes>
-          <Route path="/" element={<FacultyContainer />} />
-          <Route path="/faculty" element={<FacultyContainer />} />
-          <Route path="/students" element={<StudentsContainer />} />
-          <Route path="/projects" element={<Projectscontainer />} />
-          <Route path="/assessments" element={<AssessmentsContainer />} />
-          <Route path="/marksheets" element={<MarksheetsContainer />} />
-          <Route path="/semsters" element={<SemesterContainer />} />
-        </Routes>
+      <Sidebar menuItems={menuItems} subMenuItems={subMenuItems} />
+      <div className="p-4 sm:ml-64 overflow-y-auto">
+        <Outlet />
       </div>
     </>
   );

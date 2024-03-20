@@ -4,6 +4,7 @@ import logo from "../../assets/logo.png";
 import { Roles } from "../../assets/constants";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { Link } from "react-router-dom";
 
 const NavBar = ({ username, role }) => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -23,27 +24,24 @@ const NavBar = ({ username, role }) => {
   const renderLinks = () => {
     const links = [];
 
-    const linkData = [
-      { text: "Admin Link 1", href: "#responsive-header" },
-      { text: "Admin Link 2", href: "#responsive-header" },
-    ];
+    const linkData = [];
 
     if (role !== Roles.PROJECT_COORDINATOR) {
       linkData.push(
-        { text: "Regular User Link 1", href: "#responsive-header" },
-        { text: "Regular User Link 2", href: "#responsive-header" }
+        { text: "Regular User Link 1", path: "/" },
+        { text: "Regular User Link 2", path: "/" }
       );
     }
 
-    linkData.forEach((link, index) => {
+    linkData?.forEach((link, index) => {
       links.push(
-        <a
+        <Link
           key={index}
-          href={link.href}
+          to={link.path}
           className="block mt-4 lg:inline-block lg:mt-0 mr-4"
         >
           {link.text}
-        </a>
+        </Link>
       );
     });
     setLinks(links);

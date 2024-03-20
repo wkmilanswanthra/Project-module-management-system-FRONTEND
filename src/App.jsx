@@ -13,7 +13,7 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen h-fit">
+    <div className="flex flex-col min-h-screen h-screen">
       <Router>
         <NavBar username={"username"} role={Roles.PROJECT_COORDINATOR} />
         {routes}

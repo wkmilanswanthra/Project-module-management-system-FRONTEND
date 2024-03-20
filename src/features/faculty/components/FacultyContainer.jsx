@@ -1,5 +1,13 @@
-import React from "react";
-import { Table, Space, Button, Typography, ConfigProvider } from "antd";
+import React, { useEffect } from "react";
+import {
+  Table,
+  Space,
+  Button,
+  Typography,
+  ConfigProvider,
+  Divider,
+  Input,
+} from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -8,10 +16,12 @@ import {
   SortAscendingOutlined,
   SortDescendingOutlined,
   SearchOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Roles } from "../../../assets/constants";
 
 const { Text } = Typography;
+const { Search } = Input;
 
 const rolesList = Object.keys(Roles).map((role) => {
   return {
@@ -91,6 +101,7 @@ const columns = [
         <Button type="danger" icon={<DeleteOutlined />} />
       </Space>
     ),
+    align: "center",
   },
 ];
 
@@ -114,6 +125,23 @@ const data = [
 ];
 
 function FacultyContainer() {
+  const [searchData, setSearchdata] = React.useState([]);
+
+  useEffect(() => {
+    setSearchdata(data);
+  }, []);
+
+  const onSearch = (value) => {
+    const filteredData = data.filter((record) => {
+      return (
+        record.name.toLowerCase().includes(value.toLowerCase()) ||
+        record.email.toLowerCase().includes(value.toLowerCase()) ||
+        record.contact.toLowerCase().includes(value.toLowerCase())
+      );
+    });
+    setSearchdata(filteredData);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -137,9 +165,30 @@ function FacultyContainer() {
         <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
           Faculty Members
         </h1>
+        <Divider style={{ borderBlockStart: "1px solid #ccc" }} />
+        <div className="flex flex-row w-ful justify-end">
+          <Search
+            placeholder="input search text"
+            onSearch={onSearch}
+            onChange={(e) => {
+              if (e.target.value === "") {
+                setSearchdata(data);
+              }
+            }}
+            style={{
+              width: 400,
+              borderRadius: "100%",
+            }}
+            allowClear
+          />
+          <Button icon={<PlusOutlined />} size={32} className="ml-8">
+            Add Faculty Member
+          </Button>
+        </div>
         <Table
+          className="mt-8"
           columns={columns}
-          dataSource={data}
+          dataSource={searchData}
           pagination={{ pageSize: 15 }}
         />
       </div>

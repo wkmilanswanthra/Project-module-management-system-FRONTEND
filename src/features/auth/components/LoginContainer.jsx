@@ -61,20 +61,22 @@ const LoginContainer = ({ navigation }) => {
             </button>
           </div>
         </form>
-        <div className="text-sm text-gray-500 mt-4 mb-2">
+        <div className="text-sm text-gray-500 mt-20 mb-2">
           Not registered yet?
         </div>
         <Link
           to="/signup"
           className="w-full text-center max-w-lg mt-4 bg-gray-300 border border-gray-300 hover:bg-white text-gray-900 font-bold py-3 px-6 rounded-lg shadow-sm transition duration-300 ease-in-out"
         >
-          Sign Up
+          Sign Up as a Student
         </Link>
         <div className="text-sm text-gray-500 hover:text-blue-500 mt-4 mb-2">
-          <Link to="/faculty/signup">Sign Up as a faculty member</Link>
+          <Link to="/faculty/signup">
+            <span className="font-bold"> Or </span>Sign Up as a faculty member
+          </Link>
         </div>
       </div>
-      <footer className="mt-auto py-4 text-center text-gray-500  text-sm">
+      <footer className="mt-auto py-4 text-center text-gray-500  text-sm ">
         &copy; {new Date().getFullYear()} Grade Master. All rights reserved.
       </footer>
     </div>

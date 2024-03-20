@@ -1,7 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Divider } from "antd";
 
-function Sidebar({ menuItems }) {
+function Sidebar({ menuItems, subMenuItems }) {
   const location = useLocation();
 
   return (
@@ -36,10 +37,25 @@ function Sidebar({ menuItems }) {
       >
         <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 ">
           <ul class="space-y-2 font-medium">
-            {menuItems.map((item, index) => (
+            {menuItems?.map((item, index) => (
               <li key={index}>
                 <Link
-                  to={"/dashboard" + item.path}
+                  to={item.path}
+                  class={`block p-2 rounded-md hover:bg-gray-100 ${
+                    location.pathname === "/dashboard" + item.path
+                      ? "bg-gray-200"
+                      : "text-gray-900"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+            <Divider />
+            {subMenuItems?.map((item, index) => (
+              <li key={index}>
+                <Link
+                  to={item.path}
                   class={`block p-2 rounded-md hover:bg-gray-100 ${
                     location.pathname === "/dashboard" + item.path
                       ? "bg-gray-200"

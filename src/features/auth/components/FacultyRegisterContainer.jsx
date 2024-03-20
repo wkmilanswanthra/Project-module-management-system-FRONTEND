@@ -6,7 +6,6 @@ export default function FacultyRegisterContainer() {
     <div className="flex flex-col items-center justify-center flex-1">
       <div
         style={{
-          minHeight: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",

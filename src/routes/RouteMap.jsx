@@ -1,11 +1,146 @@
 import React from "react";
+import Dashboard from "../pages/Dashboard";
+import StudentsContainer from "../features/students/components/StudentsContainer";
+import FacultyContainer from "../features/faculty/components/FacultyContainer";
+import ProjectsContainer from "../features/project/components/ProjectsContainer";
+import SemesterContainer from "../features/semester/components/SemesterContainer";
+import MarksheetsContainer from "../features/marksheet/components/MarksheetsContainer";
+import AssessmentsContainer from "../features/assessments/components/AssessmentsContainer";
+import CreateAssessmentContainer from "../features/assessments/components/CreateAssessmentContainer";
+import RubricsContainer from "../features/rubrics/components/RubricsContainer";
+import CreateRubricsContainer from "../features/rubrics/components/CreateRubricsContainer";
+import ScheduleContainer from "../features/schedule/components/ScheduleContainer";
+import CreateSchedule from "../features/schedule/components/CreateSchedule";
+import NewMarksheet from "../features/marksheet/components/NewMarksheet";
+import GroupsContainer from "../features/groups/components/GroupsContainer";
 
-const Dashboard = React.lazy(() => import("../pages/Dashboard"));
+import AssessmentsPage from "../pages/AssessmentsPage";
+import AssessmentList from "../features/assessments/components/AssessmentList";
+import Welcome from "../features/studentDashboard/components/Welcome";
+import PublicationPage from "../pages/PublicationPage";
+import ProjectPage from "../pages/ProjectPage";
+import CreateProject from "../features/project/components/CreateProject";
+
+import { Roles } from "../assets/constants";
+
 const routes = [
   {
-    path: "/dashboard/*",
-    element: Dashboard,
-    allowedRoles: ["PROJECT_COORDINATOR"],
+    path: "",
+    element: <Dashboard />,
+    allowedRoles: [
+      Roles.PROJECT_COORDINATOR,
+      Roles.MEMBER,
+      Roles.EXAMINER,
+      Roles.SUPERVISOR,
+      Roles.CO_SUPERVISOR,
+    ],
+    childRoutes: [
+      {
+        path: "students",
+        element: <StudentsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "faculty",
+        element: <FacultyContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "",
+        element: <FacultyContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "projects",
+        element: <ProjectsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "assessments",
+        element: <AssessmentsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "marksheets",
+        element: <MarksheetsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "semesters",
+        element: <SemesterContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "rubrics",
+        element: <RubricsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "groups",
+        element: <GroupsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "assessments/create",
+        element: <CreateAssessmentContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "rubrics/create",
+        element: <CreateRubricsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "schedule",
+        element: <ScheduleContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "schedule/create",
+        element: <CreateSchedule />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+      {
+        path: "marksheets/new",
+        element: <NewMarksheet />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
+      },
+    ],
+  },
+  {
+    path: "",
+    element: <AssessmentsPage />,
+    allowedRoles: [Roles.STUDENT],
+    childRoutes: [
+      {
+        path: "",
+        element: <Welcome />,
+        allowedRoles: [Roles.STUDENT],
+      },
+      {
+        path: "list",
+        element: <AssessmentList />,
+        allowedRoles: [Roles.STUDENT],
+      },
+    ],
+  },
+  {
+    path: "/publications",
+    element: <PublicationPage />,
+    allowedRoles: [Roles.STUDENT],
+    childRoutes: [],
+  },
+  {
+    path: "/projects",
+    element: <ProjectPage />,
+    allowedRoles: [Roles.STUDENT],
+    childRoutes: [
+      {
+        path: "create-project",
+        element: <CreateProject />,
+        allowedRoles: [Roles.STUDENT],
+      },
+    ],
   },
 ];
 

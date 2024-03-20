@@ -13,7 +13,7 @@ export default function WelcomeContainer() {
           alignItems: "center",
         }}
       >
-        <div className="text-center mt-40 md:mt-72 mb-8">
+        <div className="text-center mt-40 md:mt-0 mb-8">
           <h1 className="text-4xl font-bold  mb-4">Welcome to Grade Master</h1>
           <p className="text-sm font-normal">
             Easiest way to manage your students' final year project

@@ -6,7 +6,6 @@ const StudentRegisterContainer = () => {
     <div className="flex flex-col items-center justify-center flex-1">
       <div
         style={{
-          minHeight: "100%",
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -161,7 +160,7 @@ const StudentRegisterContainer = () => {
           </div>
         </form>
       </div>
-      <footer className="mt-auto py-4 text-center text-gray-500 text-sm justify-end">
+      <footer className="mt-auto py-4 text-center text-gray-500 text-sm ">
         &copy; {new Date().getFullYear()} Grade Master. All rights reserved.
       </footer>
     </div>

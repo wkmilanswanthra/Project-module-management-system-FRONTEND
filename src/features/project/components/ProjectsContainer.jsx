@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Table,
   Space,
@@ -6,6 +6,7 @@ import {
   Typography,
   ConfigProvider,
   Divider,
+  Input,
 } from "antd";
 import {
   EditOutlined,
@@ -14,9 +15,11 @@ import {
   SearchOutlined,
   SortAscendingOutlined,
   SortDescendingOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
+const { Search } = Input;
 
 const columns = [
   {
@@ -39,44 +42,36 @@ const columns = [
       ) : (
         <SortDescendingOutlined />
       ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Supervisor",
     dataIndex: "supervisor",
     key: "supervisor",
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Co-supervisor",
     dataIndex: "coSupervisor",
     key: "coSupervisor",
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Member 1",
     dataIndex: "member1",
     key: "member1",
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Member 2",
     dataIndex: "member2",
     key: "member2",
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Member 3",
     dataIndex: "member3",
     key: "member3",
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Member 4",
     dataIndex: "member4",
     key: "member4",
-
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
     title: "Actions",
@@ -86,6 +81,7 @@ const columns = [
         <Button type="danger" icon={<DeleteOutlined />} />
       </Space>
     ),
+    align: "center",
   },
 ];
 
@@ -115,6 +111,27 @@ const data = [
 ];
 
 function ProjectsContainer() {
+  const [searchData, setSearchdata] = React.useState([]);
+
+  useEffect(() => {
+    setSearchdata(data);
+  }, []);
+
+  const onSearch = (value) => {
+    const filteredData = data.filter((record) => {
+      return (
+        record.title.toLowerCase().includes(value.toLowerCase()) ||
+        record.researchGroup.toLowerCase().includes(value.toLowerCase()) ||
+        record.supervisor.toLowerCase().includes(value.toLowerCase()) ||
+        record.coSupervisor.toLowerCase().includes(value.toLowerCase()) ||
+        record.member1.toLowerCase().includes(value.toLowerCase()) ||
+        record.member2.toLowerCase().includes(value.toLowerCase()) ||
+        record.member3.toLowerCase().includes(value.toLowerCase()) ||
+        record.member4.toLowerCase().includes(value.toLowerCase())
+      );
+    });
+    setSearchdata(filteredData);
+  };
   return (
     <ConfigProvider
       theme={{
@@ -137,10 +154,29 @@ function ProjectsContainer() {
       <div>
         <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">Projects</h1>
         <Divider style={{ borderBlockStart: "1px solid #ccc" }} />
+        <div className="flex flex-row w-ful justify-end">
+          <Search
+            placeholder="input search text"
+            onSearch={onSearch}
+            onChange={(e) => {
+              if (e.target.value === "") {
+                setSearchdata(data);
+              }
+            }}
+            style={{
+              width: 400,
+              borderRadius: "100%",
+            }}
+            allowClear
+          />
+          <Button icon={<PlusOutlined />} size={32} className="ml-8">
+            Add Student
+          </Button>
+        </div>
         <Table
           className="mt-8"
           columns={columns}
-          dataSource={data}
+          dataSource={searchData}
           pagination={{ pageSize: 15 }}
         />
       </div>
