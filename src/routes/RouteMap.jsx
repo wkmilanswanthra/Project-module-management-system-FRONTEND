@@ -14,14 +14,18 @@ import CreateSchedule from "../features/schedule/components/CreateSchedule";
 import NewMarksheet from "../features/marksheet/components/NewMarksheet";
 import GroupsContainer from "../features/groups/components/GroupsContainer";
 
-import AssessmentsPage from "../pages/AssessmentsPage";
+import StudentsDashboard from "../pages/StudentsDashboard";
 import AssessmentList from "../features/assessments/components/AssessmentList";
 import Welcome from "../features/studentDashboard/components/Welcome";
-import PublicationPage from "../pages/PublicationPage";
-import ProjectPage from "../pages/ProjectPage";
+import PublicationPage from "../features/publications/components/PublicationPage";
+import ProjectPage from "../features/project/components/ProjectPage";
 import CreateProject from "../features/project/components/CreateProject";
+import AddPublication from "../features/publications/components/AddPublication";
+import AssessmentContainer from "../features/assessments/components/AssessmentContainer";
 
 import { Roles } from "../assets/constants";
+
+const hasAProject = true;
 
 const routes = [
   {
@@ -109,7 +113,7 @@ const routes = [
   },
   {
     path: "",
-    element: <AssessmentsPage />,
+    element: <StudentsDashboard hasAProject={hasAProject} />,
     allowedRoles: [Roles.STUDENT],
     childRoutes: [
       {
@@ -118,24 +122,6 @@ const routes = [
         allowedRoles: [Roles.STUDENT],
       },
       {
-        path: "list",
-        element: <AssessmentList />,
-        allowedRoles: [Roles.STUDENT],
-      },
-    ],
-  },
-  {
-    path: "/publications",
-    element: <PublicationPage />,
-    allowedRoles: [Roles.STUDENT],
-    childRoutes: [],
-  },
-  {
-    path: "/projects",
-    element: <ProjectPage />,
-    allowedRoles: [Roles.STUDENT],
-    childRoutes: [
-      {
         path: "create-project",
         element: <CreateProject />,
         allowedRoles: [Roles.STUDENT],
@@ -143,5 +129,37 @@ const routes = [
     ],
   },
 ];
+
+const hasProjectPaths = [
+  {
+    path: "",
+    element: <ProjectPage />,
+    allowedRoles: [Roles.STUDENT],
+  },
+  {
+    path: "assessments",
+    element: <AssessmentList />,
+    allowedRoles: [Roles.STUDENT],
+  },
+  {
+    path: "assessment/*",
+    element: <AssessmentContainer />,
+    allowedRoles: [Roles.STUDENT],
+  },
+  {
+    path: "publications",
+    element: <PublicationPage />,
+    allowedRoles: [Roles.STUDENT],
+  },
+  {
+    path: "add-publication",
+    element: <AddPublication />,
+    allowedRoles: [Roles.STUDENT],
+  },
+];
+
+if (hasAProject) {
+  routes[1].childRoutes = hasProjectPaths;
+}
 
 export default routes;

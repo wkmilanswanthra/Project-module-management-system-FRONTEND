@@ -12,11 +12,11 @@ function Sidebar({ menuItems, subMenuItems }) {
         data-drawer-toggle="default-sidebar"
         aria-controls="default-sidebar"
         type="button"
-        class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        className="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
       >
-        <span class="sr-only">Open sidebar</span>
+        <span className="sr-only">Open sidebar</span>
         <svg
-          class="w-6 h-6"
+          className="w-6 h-6"
           aria-hidden="true"
           fill="currentColor"
           viewBox="0 0 20 20"
@@ -32,16 +32,16 @@ function Sidebar({ menuItems, subMenuItems }) {
 
       <aside
         id="default-sidebar"
-        class="z-40 fixed top-[84px] w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 border-r border-gray-400 "
+        className="z-40 fixed top-[84px] w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 border-r border-gray-400 "
         aria-label="Sidebar"
       >
-        <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 ">
-          <ul class="space-y-2 font-medium">
+        <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 ">
+          <ul className="space-y-2 font-medium">
             {menuItems?.map((item, index) => (
               <li key={index}>
                 <Link
                   to={item.path}
-                  class={`block p-2 rounded-md hover:bg-gray-100 ${
+                  className={`block p-2 rounded-md hover:bg-gray-100 ${
                     location.pathname === "/dashboard" + item.path
                       ? "bg-gray-200"
                       : "text-gray-900"
@@ -51,12 +51,12 @@ function Sidebar({ menuItems, subMenuItems }) {
                 </Link>
               </li>
             ))}
-            <Divider />
+            {subMenuItems && <Divider />}
             {subMenuItems?.map((item, index) => (
               <li key={index}>
                 <Link
                   to={item.path}
-                  class={`block p-2 rounded-md hover:bg-gray-100 ${
+                  className={`block p-2 rounded-md hover:bg-gray-100 ${
                     location.pathname === "/dashboard" + item.path
                       ? "bg-gray-200"
                       : "text-gray-900"
