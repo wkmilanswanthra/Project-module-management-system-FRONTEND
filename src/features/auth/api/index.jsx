@@ -43,3 +43,28 @@ export const register = createAsyncThunk(
     }
   }
 );
+
+export const logout = createAsyncThunk("auth/logout", async () => {
+  localStorage.removeItem("token");
+});
+
+export const getMe = createAsyncThunk(
+  "auth/getMe",
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const token = localStorage.getItem("token") || "";
+      if (!token) {
+        return rejectWithValue("Token not found");
+      }
+      const user = jwtDecode(token);
+
+      return { user, token };
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

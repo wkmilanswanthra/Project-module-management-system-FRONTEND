@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Form, Input, Button, Select } from "antd";
 import {
   UserOutlined,
@@ -9,10 +9,31 @@ import {
 } from "@ant-design/icons";
 
 const { Option } = Select;
+import { useDispatch, useSelector } from "react-redux";
+import { register } from "../api";
+import { openNotificationWithIcon } from "../../../util/notifications";
 
 const StudentRegisterContainer = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const onFinish = (values) => {
     console.log("Received values:", values);
+    dispatch(register(values))
+      .then((res) => {
+        if (res.payload.token) {
+          localStorage.setItem("token", res.payload.token);
+          openNotificationWithIcon("success", "Registered successfully!", "");
+          navigate("/");
+        }
+      })
+      .catch((e) => {
+        openNotificationWithIcon(
+          "error",
+          "An error occured",
+          "There was and error while creating new user"
+        );
+      });
   };
 
   return (
@@ -105,6 +126,21 @@ const StudentRegisterContainer = () => {
                 prefix={<LockOutlined />}
                 placeholder="Confirm Password"
               />
+            </Form.Item>
+            <Form.Item
+              name="batch"
+              label="Batch"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select your batch",
+                },
+              ]}
+            >
+              <Select placeholder="Select batch">
+                <Option value="Regular">Regular</Option>
+                <Option value="June">June</Option>
+              </Select>
             </Form.Item>
           </div>
           <div className="col-span-2 md:col-span-1">

@@ -34,7 +34,7 @@ const ApplicationRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/*" element={<InitialPage />} />
+      {!isLoggedIn && <Route path="/*" element={<InitialPage />} />}
       {isLoggedIn &&
         allowedRoutes.map((route, index) => {
           if (route.childRoutes.length > 0) {

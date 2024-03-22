@@ -5,47 +5,62 @@ import { Roles } from "../../assets/constants";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logout } from "../../features/auth/api";
+import { openNotificationWithIcon } from "../../util/notifications";
 
 const NavBar = ({ username, role }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [links, setLinks] = useState([]);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    renderLinks();
-  }, [role]);
+  // useEffect(() => {
+  //   renderLinks();
+  // }, [role]);
 
-  const handleMenuClick = (e) => {
-    if (e.key === "logout") {
-      console.log("Logout clicked");
-    }
-    setMenuVisible(false);
+  const logOut = () => {
+    dispatch(logout())
+      .then(() => {
+        openNotificationWithIcon(
+          "success",
+          "Logged out successfully",
+          "You have been logged out successfully"
+        );
+      })
+      .catch((e) => {
+        openNotificationWithIcon(
+          "error",
+          "Error",
+          "An error occurred while logging out"
+        );
+      });
   };
 
-  const renderLinks = () => {
-    const links = [];
+  // const renderLinks = () => {
+  //   const links = [];
 
-    const linkData = [];
+  //   const linkData = [];
+  //
+  //   if (role !== Roles.PROJECT_COORDINATOR) {
+  //     linkData.push(
+  //       { text: "Regular User Link 1", path: "/" },
+  //       { text: "Regular User Link 2", path: "/" }
+  //     );
+  //   }
 
-    if (role !== Roles.PROJECT_COORDINATOR) {
-      linkData.push(
-        { text: "Regular User Link 1", path: "/" },
-        { text: "Regular User Link 2", path: "/" }
-      );
-    }
-
-    linkData?.forEach((link, index) => {
-      links.push(
-        <Link
-          key={index}
-          to={link.path}
-          className="block mt-4 lg:inline-block lg:mt-0 mr-4"
-        >
-          {link.text}
-        </Link>
-      );
-    });
-    setLinks(links);
-  };
+  //   linkData?.forEach((link, index) => {
+  //     links.push(
+  //       <Link
+  //         key={index}
+  //         to={link.path}
+  //         className="block mt-4 lg:inline-block lg:mt-0 mr-4"
+  //       >
+  //         {link.text}
+  //       </Link>
+  //     );
+  //   });
+  //   setLinks(links);
+  // };
 
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
@@ -108,21 +123,19 @@ const NavBar = ({ username, role }) => {
                     </a>
                   )}
                 </Menu.Item>
-                <form method="POST" action="#">
-                  <Menu.Item>
-                    {({ active }) => (
-                      <button
-                        type="submit"
-                        className={classNames(
-                          active ? "bg-gray-100 text-red-500" : "text-gray-700",
-                          "block w-full px-4 py-2 text-left text-sm"
-                        )}
-                      >
-                        Sign out
-                      </button>
-                    )}
-                  </Menu.Item>
-                </form>
+                <Menu.Item>
+                  {({ active }) => (
+                    <button
+                      onClick={logOut}
+                      className={classNames(
+                        active ? "bg-gray-100 text-red-500" : "text-gray-700",
+                        "block w-full px-4 py-2 text-left text-sm"
+                      )}
+                    >
+                      Sign out
+                    </button>
+                  )}
+                </Menu.Item>
               </div>
             </Menu.Items>
           </Transition>
