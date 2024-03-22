@@ -21,13 +21,13 @@ export default function WelcomeContainer() {
         </div>
         <div className="flex md:justify-center md:flex-row flex-col ">
           <Link
-            to="/login"
+            to="login"
             className="bg-black text-white font-semibold text-lg border border-black px-[8rem] py-2 md:mr-4  hover:bg-white hover:text-black hover:border-gray-300 rounded-full transition duration-300 ease-in-out"
           >
             Login
           </Link>
           <Link
-            to="/signup"
+            to="signup"
             className="bg-black text-white font-semibold text-lg border border-black px-[8rem] py-2 mt-4 md:mt-0 hover:bg-white hover:text-black hover:border-gray-300 rounded-full transition duration-300 ease-in-out"
           >
             Sign Up

@@ -4,15 +4,17 @@ import logo from "../../assets/logo.png";
 import { Roles } from "../../assets/constants";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, redirect } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../../features/auth/api";
 import { openNotificationWithIcon } from "../../util/notifications";
 
-const NavBar = ({ username, role }) => {
+const NavBar = ({ name, role }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [links, setLinks] = useState([]);
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // useEffect(() => {
   //   renderLinks();
@@ -26,6 +28,7 @@ const NavBar = ({ username, role }) => {
           "Logged out successfully",
           "You have been logged out successfully"
         );
+        navigate("/");
       })
       .catch((e) => {
         openNotificationWithIcon(
@@ -91,7 +94,7 @@ const NavBar = ({ username, role }) => {
         <Menu as="div" className="relative inline-block text-left">
           <div>
             <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
-              {username}
+              {name}
               <ChevronDownIcon
                 className="-mr-1 h-5 w-5 text-gray-400"
                 aria-hidden="true"

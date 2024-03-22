@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal, Form, Input, Button } from "antd";
+import { Modal, Form, Input, Button, Select } from "antd";
 
 const { Item } = Form;
 
@@ -113,29 +113,72 @@ function AddFacultyModal({ form, open, handleOk, handleCancel }) {
         </Item>
 
         <Item
+          name="contact"
           label="Contact Number"
-          name="contactNumber"
           rules={[
             {
               required: true,
-              message: "Please input your contact number!",
+              message: "Please enter your contact number",
             },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                const contactRegex = /^0[0-9]{9}$/;
+                if (!value || contactRegex.test(value)) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(
+                  new Error("Please enter a valid contact number ")
+                );
+              },
+            }),
           ]}
         >
-          <Input />
+          <Input placeholder="Contact Number" />
         </Item>
 
         <Item
-          label="Position"
           name="position"
+          label="Position"
           rules={[
             {
               required: true,
-              message: "Please input your position!",
+              message: "Please select your position",
             },
           ]}
         >
-          <Input />
+          <Select placeholder="Select Position">
+            <Select.Option value="Instructor">Instructor</Select.Option>
+            <Select.Option value="Lecturer">Lecturer</Select.Option>
+            <Select.Option value="Lecturer (Higher Grade)">
+              Lecturer (Higher Grade)
+            </Select.Option>
+            <Select.Option value="Assistant Professor">
+              Assistant Professor
+            </Select.Option>
+            <Select.Option value="Associate Professor">
+              Associate Professor
+            </Select.Option>
+            <Select.Option value="Professor">Professor</Select.Option>
+            <Select.Option value="Senior Professor">
+              Senior Professor
+            </Select.Option>
+          </Select>
+        </Item>
+        <Item
+          name="registrationNumber"
+          label="Employ Number"
+          rules={[
+            {
+              required: true,
+              message: "Please enter your Employ number",
+            },
+            {
+              pattern: /^(EMP\d{4})$/,
+              message: "Please enter a valid Employ number",
+            },
+          ]}
+        >
+          <Input placeholder="Employ Number" />
         </Item>
       </Form>
     </Modal>

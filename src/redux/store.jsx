@@ -2,10 +2,12 @@ import { configureStore, applyMiddleware } from "@reduxjs/toolkit";
 import logger from "redux-logger";
 
 import authReducer from "../features/auth/store/auth.slice";
+import facultyReducer from "../features/faculty/store/faculty.slice";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
+    faculty: facultyReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(logger),

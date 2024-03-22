@@ -18,6 +18,7 @@ const StudentRegisterContainer = () => {
   const navigate = useNavigate();
 
   const onFinish = (values) => {
+    values.student = true;
     console.log("Received values:", values);
     dispatch(register(values))
       .then((res) => {
@@ -25,6 +26,12 @@ const StudentRegisterContainer = () => {
           localStorage.setItem("token", res.payload.token);
           openNotificationWithIcon("success", "Registered successfully!", "");
           navigate("/");
+        } else {
+          openNotificationWithIcon(
+            "error",
+            "Registration failed",
+            "There was and error while creating new user"
+          );
         }
       })
       .catch((e) => {
@@ -208,6 +215,10 @@ const StudentRegisterContainer = () => {
                 {
                   required: true,
                   message: "Please enter your registration number",
+                },
+                {
+                  pattern: /^(REG\d{4})$/,
+                  message: "Please enter a valid registration number",
                 },
               ]}
             >

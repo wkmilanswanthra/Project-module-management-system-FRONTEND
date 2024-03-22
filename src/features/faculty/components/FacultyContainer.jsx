@@ -23,6 +23,9 @@ import {
 import { Roles } from "../../../assets/constants";
 import { openNotificationWithIcon } from "../../../util/notifications";
 import AddFacultyModal from "../modals/AddFacultyModal";
+import makeApi from "../../../config/axiosConfig";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllFacultyMembers } from "../api";
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -110,36 +113,40 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    name: "John Doe",
-    position: "Professor",
-    role: "STUDENT",
-    email: "john@example.com",
-    contact: "123-456-7890",
-  },
-  {
-    key: "2",
-    name: "Jane Smith",
-    position: "Assistant Professor",
-    role: "STUDENT",
-    email: "jane@example.com",
-    contact: "987-654-3210",
-  },
-];
-
 function FacultyContainer() {
   const [searchData, setSearchdata] = React.useState([]);
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
+  const { members, loading, error } = useSelector((state) => state.faculty);
+
+  const api = makeApi();
+  const dispatch = useDispatch();
 
   const [form] = Form.useForm();
 
   useEffect(() => {
-    setSearchdata(data);
+    getTableData();
   }, []);
+
+  useEffect(() => {
+    setSearchdata(members);
+  }, [members]);
+
+  const getTableData = async () => {
+    dispatch(getAllFacultyMembers("STAFF"))
+      .then((res) => {
+        console.log(res);
+        setSearchdata(res.payload);
+      })
+      .catch((e) => {
+        openNotificationWithIcon(
+          "error",
+          "Unable to load data",
+          "An error was encountered while loading data"
+        );
+      });
+  };
 
   const onSearch = (value) => {
     const filteredData = data.filter((record) => {
@@ -159,16 +166,22 @@ function FacultyContainer() {
   const handleOk = () => {
     form
       .validateFields()
-      .then((values) => {
+      .then(async (values) => {
+        values.student = false;
         setConfirmLoading(true);
         console.log("Received values of form: ", values);
-        setConfirmLoading(false);
-        setOpen(false);
-        form.resetFields();
-        openNotificationWithIcon(
-          "success",
-          "Faculty Member Added Successfully"
-        );
+        try {
+          const res = await api.post("/auth/faculty/add", values);
+          setConfirmLoading(false);
+          setOpen(false);
+          form.resetFields();
+          openNotificationWithIcon(
+            "success",
+            "Faculty Member Added Successfully"
+          );
+        } catch (e) {
+          throw new Error(e);
+        }
       })
       .catch((error) => {
         console.error("Validation failed:", error);
@@ -230,6 +243,7 @@ function FacultyContainer() {
             </Button>
           </div>
           <Table
+            loading={loading}
             className="mt-8"
             columns={columns}
             dataSource={searchData}

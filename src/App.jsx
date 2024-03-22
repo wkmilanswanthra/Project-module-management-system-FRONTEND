@@ -24,7 +24,7 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen h-screen">
       <Router>
-        {isLoggedIn && <NavBar username={user?.username} role={role} />}
+        {isLoggedIn && <NavBar name={user?.name} role={role} />}
         {routes}
       </Router>
     </div>

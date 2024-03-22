@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, redirect } from "react-router-dom";
 import { Form, Input, Button, Spin } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { openNotificationWithIcon } from "../../../util/notifications";
@@ -15,23 +15,31 @@ const LoginContainer = () => {
 
   const onFinish = (values) => {
     console.log("Received values:", values);
-    dispatch(login(values)).then((res) => {
-      localStorage.setItem("token", res.payload.token);
-      if (res.payload.token) {
-        openNotificationWithIcon(
-          "success",
-          "Login Successful",
-          "You have successfully logged in"
-        );
-        navigate("/");
-      } else {
+    dispatch(login(values))
+      .then((res) => {
+        if (res.payload.token) {
+          localStorage.setItem("token", res.payload.token);
+          openNotificationWithIcon(
+            "success",
+            "Login Successful",
+            "You have successfully logged in"
+          );
+          navigate("/", { replace: true });
+        } else {
+          openNotificationWithIcon(
+            "error",
+            "Login Failed",
+            "Invalid Credentials"
+          );
+        }
+      })
+      .catch(() => {
         openNotificationWithIcon(
           "error",
           "Login Failed",
-          "Invalid Credentials"
+          "An error occurred while logging in"
         );
-      }
-    });
+      });
   };
 
   return (

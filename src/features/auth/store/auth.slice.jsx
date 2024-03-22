@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { login, register, logout, getMe } from "./../api";
-import { jwtDecode } from "jwt-decode";
 
 const authSlice = createSlice({
   name: "auth",

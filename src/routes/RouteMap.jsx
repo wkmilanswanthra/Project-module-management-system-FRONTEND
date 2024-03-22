@@ -23,9 +23,45 @@ import CreateProject from "../features/project/components/CreateProject";
 import AddPublication from "../features/publications/components/AddPublication";
 import AssessmentContainer from "../features/assessments/components/AssessmentContainer";
 
+import InitialPage from "../pages/InitialPage";
+import WelcomeContainer from "../features/auth/components/WelcomeContainer";
+import LoginContainer from "../features/auth/components/LoginContainer";
+import StudentRegisterContainer from "../features/auth/components/StudentRegisterContainer";
+import FacultyRegisterContainer from "../features/auth/components/FacultyRegisterContainer";
+
 import { Roles } from "../assets/constants";
 
 const hasAProject = true;
+
+export const authRoutes = [
+  {
+    path: "",
+    element: <InitialPage />,
+    allowedRoles: [],
+    childRoutes: [
+      {
+        path: "",
+        element: <WelcomeContainer />,
+        allowedRoles: [],
+      },
+      {
+        path: "login",
+        element: <LoginContainer />,
+        allowedRoles: [],
+      },
+      {
+        path: "signup",
+        element: <StudentRegisterContainer />,
+        allowedRoles: [],
+      },
+      {
+        path: "faculty/signup",
+        element: <FacultyRegisterContainer />,
+        allowedRoles: [],
+      },
+    ],
+  },
+];
 
 const routes = [
   {
@@ -37,6 +73,7 @@ const routes = [
       Roles.EXAMINER,
       Roles.SUPERVISOR,
       Roles.CO_SUPERVISOR,
+      Roles.STAFF,
     ],
     childRoutes: [
       {

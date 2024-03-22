@@ -29,7 +29,10 @@ export const register = createAsyncThunk(
   "auth/register",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await api.post("/auth/register", data);
+      let url = "/auth/register";
+      if (!data.student) url = "/auth/faculty/register";
+      delete data.student;
+      const response = await api.post(url, data);
       const user = jwtDecode(response.data.token);
       response.data.user = user;
       response.data.role = user.role;

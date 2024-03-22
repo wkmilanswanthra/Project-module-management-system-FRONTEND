@@ -20,6 +20,8 @@ const FacultyRegisterContainer = () => {
   const navigate = useNavigate();
 
   const onFinish = (values) => {
+    values.stuent = false;
+
     console.log("Received values:", values);
     dispatch(register(values)).then((res) => {
       localStorage.setItem("token", res.payload.token);
@@ -198,6 +200,22 @@ const FacultyRegisterContainer = () => {
                 <Option value="Professor">Professor</Option>
                 <Option value="Senior Professor">Senior Professor</Option>
               </Select>
+            </Form.Item>
+            <Form.Item
+              name="registrationNumber"
+              label="Employ Number"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your Employ number",
+                },
+                {
+                  pattern: /^(EMP\d{4})$/,
+                  message: "Please enter a valid Employ number",
+                },
+              ]}
+            >
+              <Input placeholder="Employ Number" />
             </Form.Item>
           </div>
           <div className="flex flex-col col-span-2 w-full items-center">
