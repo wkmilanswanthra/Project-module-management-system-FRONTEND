@@ -1,7 +1,39 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Form, Input, Button, Spin } from "antd";
+import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { openNotificationWithIcon } from "../../../util/notifications";
 
-const LoginContainer = ({ navigation }) => {
+import { login } from "./../api/index";
+import { useSelector, useDispatch } from "react-redux";
+
+const LoginContainer = () => {
+  const { loading, user, error } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onFinish = (values) => {
+    console.log("Received values:", values);
+    dispatch(login(values)).then((res) => {
+      localStorage.setItem("token", res.payload.token);
+      if (res.payload.token) {
+        openNotificationWithIcon(
+          "success",
+          "Login Successful",
+          "You have successfully logged in"
+        );
+        navigate("/");
+      } else {
+        openNotificationWithIcon(
+          "error",
+          "Login Failed",
+          "Invalid Credentials"
+        );
+      }
+    });
+  };
+
   return (
     <div className="flex flex-col items-center justify-center flex-1">
       <div
@@ -17,51 +49,62 @@ const LoginContainer = ({ navigation }) => {
         <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-20">
           Welcome Back
         </h1>
-        <form className="w-full max-w-lg">
-          <div className="mb-6">
-            <label
-              className="block text-sm font-medium text-gray-900 mb-1"
-              htmlFor="username"
-            >
-              Username
-            </label>
-            <input
-              id="username"
-              type="text"
-              placeholder="Enter your username"
-              className="w-full text-sm px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
+        <Form
+          name="loginForm"
+          className="w-full max-w-lg"
+          initialValues={{
+            remember: true,
+          }}
+          layout="vertical"
+          size="large"
+          requiredMark={false}
+          onFinish={onFinish}
+        >
+          <Form.Item
+            name="username"
+            label="Username"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your username",
+              },
+            ]}
+          >
+            <Input
+              className="w-full"
+              prefix={<UserOutlined />}
+              placeholder="Username"
             />
-          </div>
-          <div className="mb-6">
-            <label
-              className="block text-sm font-medium text-gray-900 mb-1"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              id="password"
+          </Form.Item>
+          <Form.Item
+            name="password"
+            label="Password"
+            rules={[
+              {
+                required: true,
+                message: "Please enter your password",
+              },
+            ]}
+          >
+            <Input
               type="password"
-              placeholder="Enter your password"
-              className="w-full text-sm px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
+              className="w-full"
+              prefix={<LockOutlined />}
+              placeholder="Password"
             />
-          </div>
-          <div className="flex flex-col justify-between">
-            <a
-              className="text-sm text-gray-500 hover:text-blue-500 my-4"
-              href="#"
+          </Form.Item>
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="px-2 my-2 w-full h-12 bg-gray-900 text-white font-bold  rounded-lg hover:bg-white hover:text-black transition duration-300 ease-in-out "
+              disabled={loading}
             >
-              Forgot your username or password?
-            </a>
-            <button
-              type="submit"
-              className="w-full py-3 bg-gray-900  text-white font-bold border border-black rounded-lg hover:bg-white hover:text-gray-900 hover:border-gray-300 transition duration-300 ease-in-out"
-            >
-              Login
-            </button>
-          </div>
-        </form>
-        <div className="text-sm text-gray-500 mt-20 mb-2">
+              {loading ? <Spin className="text-white" /> : "Login"}
+            </Button>
+          </Form.Item>
+        </Form>
+        <div className="text-sm text-gray-500 mt-14 mb-2">
           Not registered yet?
         </div>
         <Link

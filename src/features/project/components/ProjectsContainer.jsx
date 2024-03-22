@@ -169,9 +169,6 @@ function ProjectsContainer() {
             }}
             allowClear
           />
-          <Button icon={<PlusOutlined />} size={32} className="ml-8">
-            Add Student
-          </Button>
         </div>
         <Table
           className="mt-8"

@@ -5,13 +5,14 @@ import Dashboard from "../pages/Dashboard";
 import routes from "./RouteMap";
 import PageNotFound from "../pages/PageNotFound";
 import { Roles } from "../assets/constants";
+import { useSelector } from "react-redux";
 
 const ApplicationRoutes = () => {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(true);
+  const { isLoggedIn } = useSelector((state) => state.auth);
 
   const token = localStorage.getItem("token");
   const allowedRoutes = [];
-  const currentRole = Roles.STUDENT;
+  const currentRole = Roles.PROJECT_COORDINATOR;
 
   if (token) {
     routes.forEach((route) => {
@@ -33,7 +34,7 @@ const ApplicationRoutes = () => {
 
   return (
     <Routes>
-      {!isLoggedIn && <Route path="/*" element={<InitialPage />} />}
+      <Route path="/*" element={<InitialPage />} />
       {isLoggedIn &&
         allowedRoutes.map((route, index) => {
           if (route.childRoutes.length > 0) {

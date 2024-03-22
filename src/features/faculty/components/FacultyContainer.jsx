@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Space,
@@ -7,6 +7,8 @@ import {
   ConfigProvider,
   Divider,
   Input,
+  Modal,
+  Form,
 } from "antd";
 import {
   EditOutlined,
@@ -19,9 +21,12 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { Roles } from "../../../assets/constants";
+import { openNotificationWithIcon } from "../../../util/notifications";
+import AddFacultyModal from "../modals/AddFacultyModal";
 
 const { Text } = Typography;
 const { Search } = Input;
+const { Item } = Form;
 
 const rolesList = Object.keys(Roles).map((role) => {
   return {
@@ -126,6 +131,11 @@ const data = [
 
 function FacultyContainer() {
   const [searchData, setSearchdata] = React.useState([]);
+  const [open, setOpen] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [modalText, setModalText] = useState("Content of the modal");
+
+  const [form] = Form.useForm();
 
   useEffect(() => {
     setSearchdata(data);
@@ -142,57 +152,98 @@ function FacultyContainer() {
     setSearchdata(filteredData);
   };
 
+  const showModal = () => {
+    setOpen(true);
+  };
+
+  const handleOk = () => {
+    form
+      .validateFields()
+      .then((values) => {
+        setConfirmLoading(true);
+        console.log("Received values of form: ", values);
+        setConfirmLoading(false);
+        setOpen(false);
+        form.resetFields();
+        openNotificationWithIcon(
+          "success",
+          "Faculty Member Added Successfully"
+        );
+      })
+      .catch((error) => {
+        console.error("Validation failed:", error);
+        if (!error.errorFields)
+          openNotificationWithIcon("error", "Failed to add faculty member");
+      });
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Table: {
-            headerBg: "#222",
-            headerColor: "#fff",
-            headerFilterHoverBg: "#fff",
-            headerSortActiveBg: "#222",
-            headerSortHoverBg: "#222",
+    <>
+      <ConfigProvider
+        theme={{
+          components: {
+            Table: {
+              headerBg: "#222",
+              headerColor: "#fff",
+              headerFilterHoverBg: "#fff",
+              headerSortActiveBg: "#222",
+              headerSortHoverBg: "#222",
+            },
+            Button: {
+              primaryColor: "#444",
+              primaryBg: "#fff",
+              dangerColor: "#FF3200",
+            },
           },
-          Button: {
-            primaryColor: "#444",
-            primaryBg: "#fff",
-            dangerColor: "#FF3200",
-          },
-        },
-      }}
-    >
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
-          Faculty Members
-        </h1>
-        <Divider style={{ borderBlockStart: "1px solid #ccc" }} />
-        <div className="flex flex-row w-ful justify-end">
-          <Search
-            placeholder="input search text"
-            onSearch={onSearch}
-            onChange={(e) => {
-              if (e.target.value === "") {
-                setSearchdata(data);
-              }
-            }}
-            style={{
-              width: 400,
-              borderRadius: "100%",
-            }}
-            allowClear
+        }}
+      >
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
+            Faculty Members
+          </h1>
+          <Divider style={{ borderBlockStart: "1px solid #ccc" }} />
+          <div className="flex flex-row w-ful justify-end">
+            <Search
+              placeholder="input search text"
+              onSearch={onSearch}
+              onChange={(e) => {
+                if (e.target.value === "") {
+                  setSearchdata(data);
+                }
+              }}
+              style={{
+                width: 400,
+                borderRadius: "100%",
+              }}
+              allowClear
+            />
+            <Button
+              onClick={showModal}
+              icon={<PlusOutlined />}
+              size={32}
+              className="ml-8"
+            >
+              Add Faculty Member
+            </Button>
+          </div>
+          <Table
+            className="mt-8"
+            columns={columns}
+            dataSource={searchData}
+            pagination={{ pageSize: 15 }}
           />
-          <Button icon={<PlusOutlined />} size={32} className="ml-8">
-            Add Faculty Member
-          </Button>
         </div>
-        <Table
-          className="mt-8"
-          columns={columns}
-          dataSource={searchData}
-          pagination={{ pageSize: 15 }}
-        />
-      </div>
-    </ConfigProvider>
+      </ConfigProvider>
+      <AddFacultyModal
+        open={open}
+        handleOk={handleOk}
+        handleCancel={handleCancel}
+        form={form}
+      />
+    </>
   );
 }
 
