@@ -92,17 +92,26 @@ const routes = [
       {
         path: "projects",
         element: <ProjectsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [
+          Roles.PROJECT_COORDINATOR,
+          Roles.SUPERVISOR,
+          Roles.CO_SUPERVISOR,
+        ],
       },
       {
         path: "assessments",
         element: <AssessmentsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
         path: "marksheets",
         element: <MarksheetsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [
+          Roles.PROJECT_COORDINATOR,
+          Roles.EXAMINER,
+          Roles.SUPERVISOR,
+          Roles.CO_SUPERVISOR,
+        ],
       },
       {
         path: "semesters",
@@ -112,7 +121,7 @@ const routes = [
       {
         path: "rubrics",
         element: <RubricsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
         path: "groups",
@@ -122,27 +131,32 @@ const routes = [
       {
         path: "assessments/create",
         element: <CreateAssessmentContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
         path: "rubrics/create",
         element: <CreateRubricsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
         path: "schedule",
         element: <ScheduleContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
         path: "schedule/create",
         element: <CreateSchedule />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
         path: "marksheets/new",
         element: <NewMarksheet />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
+        allowedRoles: [
+          Roles.PROJECT_COORDINATOR,
+          Roles.EXAMINER,
+          Roles.SUPERVISOR,
+          Roles.CO_SUPERVISOR,
+        ],
       },
     ],
   },
