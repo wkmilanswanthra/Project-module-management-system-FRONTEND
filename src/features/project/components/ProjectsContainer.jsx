@@ -96,6 +96,7 @@ const data = [
     member2: "Member 2",
     member3: "Member 3",
     member4: "Member 4",
+    contact: "0712345689",
   },
   {
     key: "2",
@@ -107,6 +108,7 @@ const data = [
     member2: "Member 2",
     member3: "Member 3",
     member4: "Member 4",
+    contact: "0712345698",
   },
 ];
 
@@ -127,7 +129,8 @@ function ProjectsContainer() {
         record.member1.toLowerCase().includes(value.toLowerCase()) ||
         record.member2.toLowerCase().includes(value.toLowerCase()) ||
         record.member3.toLowerCase().includes(value.toLowerCase()) ||
-        record.member4.toLowerCase().includes(value.toLowerCase())
+        record.member4.toLowerCase().includes(value.toLowerCase()) ||
+        record.contact.toLowerCase().includes(value.toLowerCase())
       );
     });
     setSearchdata(filteredData);

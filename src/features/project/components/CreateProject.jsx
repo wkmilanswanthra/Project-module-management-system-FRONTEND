@@ -98,9 +98,22 @@ const CreateProject = () => {
               </Select>
             </Form.Item>
             <Form.Item
-              label="Supervisors"
-              name="supervisors"
-              rules={[{ required: true, message: "Please select supervisor" }]}
+              label="Supervisor"
+              name="supervisor"
+              dependencies={["coSupervisor"]}
+              rules={[
+                { required: true, message: "Please select supervisor" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("coSupervisor") !== value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("No duplicate supervisors allowed")
+                    );
+                  },
+                }),
+              ]}
             >
               <Select placeholder="Select supervisor">
                 {supervisors.map((supervisor) => (
@@ -111,10 +124,21 @@ const CreateProject = () => {
               </Select>
             </Form.Item>
             <Form.Item
-              label="Co-Supervisors"
-              name="coSupervisors"
+              label="Co-Supervisor"
+              name="coSupervisor"
+              dependencies={["supervisor"]}
               rules={[
                 { required: true, message: "Please select co-supervisor" },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("supervisor") !== value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("No duplicate supervisors allowed")
+                    );
+                  },
+                }),
               ]}
             >
               <Select placeholder="Select co-supervisor">
@@ -137,25 +161,25 @@ const CreateProject = () => {
                   <Select disabled={true} placeholder="Me"></Select>
                 </Form.Item>
                 <Form.Item
-                  label="Member 1"
-                  name="member1"
-                  rules={[
-                    { required: true, message: "Please select a member" },
-                  ]}
-                >
-                  <Select placeholder="Select member 1">
-                    {mem.map((member) => (
-                      <Option key={member.id} value={member.id}>
-                        {member.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-                <Form.Item
                   label="Member 2"
                   name="member2"
+                  dependencies={["member3", "member4"]}
                   rules={[
                     { required: true, message: "Please select a member" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (
+                          !value ||
+                          (getFieldValue("member3") !== value) &
+                            (getFieldValue("member4") !== value)
+                        ) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("No duplicate members allowed!")
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <Select placeholder="Select member 2">
@@ -169,11 +193,56 @@ const CreateProject = () => {
                 <Form.Item
                   label="Member 3"
                   name="member3"
+                  dependencies={["member2", "member4"]}
                   rules={[
                     { required: true, message: "Please select a member" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (
+                          !value ||
+                          (getFieldValue("member2") !== value) &
+                            (getFieldValue("member4") !== value)
+                        ) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("No duplicate members allowed!")
+                        );
+                      },
+                    }),
                   ]}
                 >
                   <Select placeholder="Select member 3">
+                    {mem.map((member) => (
+                      <Option key={member.id} value={member.id}>
+                        {member.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  label="Member 4"
+                  name="member4"
+                  dependencies={["member3", "member2"]}
+                  rules={[
+                    { required: true, message: "Please select a member" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (
+                          !value ||
+                          (getFieldValue("member2") !== value) &
+                            (getFieldValue("member3") !== value)
+                        ) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(
+                          new Error("No duplicate members allowed!")
+                        );
+                      },
+                    }),
+                  ]}
+                >
+                  <Select placeholder="Select member 4">
                     {mem.map((member) => (
                       <Option key={member.id} value={member.id}>
                         {member.name}

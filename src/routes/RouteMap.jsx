@@ -31,8 +31,6 @@ import FacultyRegisterContainer from "../features/auth/components/FacultyRegiste
 
 import { Roles } from "../assets/constants";
 
-const hasAProject = true;
-
 export const authRoutes = [
   {
     path: "",
@@ -150,7 +148,7 @@ const routes = [
   },
   {
     path: "",
-    element: <StudentsDashboard hasAProject={hasAProject} />,
+    element: <StudentsDashboard />,
     allowedRoles: [Roles.STUDENT],
     childRoutes: [
       {
@@ -195,8 +193,11 @@ const hasProjectPaths = [
   },
 ];
 
-if (hasAProject) {
-  routes[1].childRoutes = hasProjectPaths;
-}
+export const getRoutes = (hasProject) => {
+  if (hasProject) {
+    routes[1].childRoutes = hasProjectPaths;
+  }
+  return routes;
+};
 
-export default routes;
+// export default routes;

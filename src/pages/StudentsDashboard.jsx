@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar/Sidebar";
+import { useSelector } from "react-redux";
 
 const menuItems = [
   {
@@ -20,8 +21,10 @@ const subMenuItems = [
   },
 ];
 
-function StudentsDashboard({ hasAProject }) {
-  return hasAProject ? (
+function StudentsDashboard() {
+  const { project } = useSelector((state) => state.auth);
+
+  return project ? (
     <>
       <Sidebar menuItems={menuItems} subMenuItems={subMenuItems} />
       <div className="p-4 sm:ml-64 overflow-y-auto">

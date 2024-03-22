@@ -1,27 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Route, Routes, Navigate, redirect } from "react-router-dom";
-import routes, { authRoutes } from "./RouteMap";
+import { getRoutes, authRoutes } from "./RouteMap";
 import PageNotFound from "../pages/PageNotFound";
 import PageUnauthorized from "../pages/Unauthorized";
 import { Roles } from "../assets/constants";
 import { useSelector } from "react-redux";
 
 const ApplicationRoutes = () => {
-  const { isLoggedIn, role } = useSelector((state) => state.auth);
+  const { isLoggedIn, role, project } = useSelector((state) => state.auth);
   const [allowedRoutes, setAllowedRoutes] = useState([]);
 
   useEffect(() => {
-    setAllowedRoutes(setupRoutes);
+    setAllowedRoutes(setupRoutes());
   }, []);
 
   useEffect(() => {
-    setAllowedRoutes(setupRoutes);
+    setAllowedRoutes(setupRoutes());
   }, [isLoggedIn, role]);
 
   const setupRoutes = () => {
     let y = [];
     if (isLoggedIn) {
-      routes.forEach((route) => {
+      getRoutes(project).forEach((route) => {
         if (route.allowedRoles.includes(role)) {
           let x = {
             path: route.path,
@@ -39,12 +39,6 @@ const ApplicationRoutes = () => {
             }
           });
           y.push(x);
-        } else {
-          y.push({
-            path: route.path,
-            element: <PageUnauthorized />,
-            childRoutes: [],
-          });
         }
       });
     } else {
