@@ -17,6 +17,9 @@ import {
   SortDescendingOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
+import { getAllStudents } from "../api";
+import { useDispatch, useSelector } from "react-redux";
+import { openNotificationWithIcon } from "../../../util/notifications";
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -44,6 +47,7 @@ const columns = [
       ),
     filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
+
   {
     title: "Email",
     dataIndex: "email",
@@ -84,6 +88,45 @@ const columns = [
     filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
+    title: "Role",
+    dataIndex: "role",
+    key: "role",
+    filters: [
+      {
+        text: "Student",
+        value: "STUDENT",
+      },
+      {
+        text: "Leader",
+        value: "PROJECT_LEADER",
+      },
+    ],
+    onFilter: (value, record) => record.role === value,
+    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+  },
+  {
+    title: "User Created on",
+    dataIndex: "createdAt",
+    key: "createdAt",
+    sorter: (a, b) => a.createdAt.localeCompare(b.createdAt),
+    render: (text, record) => (
+      <Text>
+        {new Date(record.createdAt).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })}
+      </Text>
+    ),
+    sortIcon: ({ sortOrder }) =>
+      sortOrder === "ascend" ? (
+        <SortAscendingOutlined />
+      ) : (
+        <SortDescendingOutlined />
+      ),
+    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+  },
+  {
     title: "Actions",
     key: "actions",
     render: () => (
@@ -96,34 +139,27 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: "1",
-    name: "John Doe",
-    registrationNumber: "REG123",
-    email: "john@example.com",
-    contact: "07123456789",
-    specialization: "Information Technology",
-  },
-  {
-    key: "2",
-    name: "Jane Smith",
-    registrationNumber: "REG456",
-    email: "jane@example.com",
-    contact: "07123456789",
-    specialization: "Software Engineering",
-  },
-];
-
 function StudentsContainer() {
   const [searchData, setSearchdata] = React.useState([]);
+  const { students, loading, error } = useSelector((state) => state.students);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setSearchdata(data);
+    fetchStudents();
   }, []);
 
+  const fetchStudents = async () => {
+    dispatch(getAllStudents())
+      .then((res) => {
+        setSearchdata(res.payload);
+      })
+      .catch((err) => {
+        openNotificationWithIcon("error", "Error", "Failed to fetch students");
+      });
+  };
+
   const onSearch = (value) => {
-    const filteredData = data.filter((record) => {
+    const filteredData = students.filter((record) => {
       return (
         record.name.toLowerCase().includes(value.toLowerCase()) ||
         record.email.toLowerCase().includes(value.toLowerCase()) ||
@@ -160,7 +196,7 @@ function StudentsContainer() {
             onSearch={onSearch}
             onChange={(e) => {
               if (e.target.value === "") {
-                setSearchdata(data);
+                setSearchdata(students);
               }
             }}
             style={{
@@ -171,6 +207,7 @@ function StudentsContainer() {
           />
         </div>
         <Table
+          loading={loading}
           className="mt-8"
           columns={columns}
           dataSource={searchData}

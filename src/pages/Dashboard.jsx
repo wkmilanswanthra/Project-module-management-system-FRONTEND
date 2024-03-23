@@ -20,6 +20,10 @@ const menuItems = [
     path: "/assessments",
   },
   {
+    name: "Submissions",
+    path: "/submissions",
+  },
+  {
     name: "Rubrics",
     path: "/rubrics",
   },
@@ -34,10 +38,6 @@ const menuItems = [
   {
     name: "Schedule",
     path: "/schedule",
-  },
-  {
-    name: "Groups",
-    path: "/groups",
   },
 ];
 
@@ -55,8 +55,8 @@ const subMenuItems = [
     path: "/schedule/create",
   },
   {
-    name: "Create Marksheet",
-    path: "/marksheets/new",
+    name: "Mark Assessment",
+    path: "/marks/new",
   },
 ];
 

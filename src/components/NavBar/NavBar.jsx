@@ -39,32 +39,6 @@ const NavBar = ({ name, role }) => {
       });
   };
 
-  // const renderLinks = () => {
-  //   const links = [];
-
-  //   const linkData = [];
-  //
-  //   if (role !== Roles.PROJECT_COORDINATOR) {
-  //     linkData.push(
-  //       { text: "Regular User Link 1", path: "/" },
-  //       { text: "Regular User Link 2", path: "/" }
-  //     );
-  //   }
-
-  //   linkData?.forEach((link, index) => {
-  //     links.push(
-  //       <Link
-  //         key={index}
-  //         to={link.path}
-  //         className="block mt-4 lg:inline-block lg:mt-0 mr-4"
-  //       >
-  //         {link.text}
-  //       </Link>
-  //     );
-  //   });
-  //   setLinks(links);
-  // };
-
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
   }

@@ -23,9 +23,8 @@ import {
 import { Roles } from "../../../assets/constants";
 import { openNotificationWithIcon } from "../../../util/notifications";
 import AddFacultyModal from "../modals/AddFacultyModal";
-import makeApi from "../../../config/axiosConfig";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllFacultyMembers } from "../api";
+import { getAllFacultyMembers, addFacultyMember } from "../api";
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -119,8 +118,7 @@ function FacultyContainer() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
   const { members, loading, error } = useSelector((state) => state.faculty);
-
-  const api = makeApi();
+  const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   const [form] = Form.useForm();
@@ -136,7 +134,7 @@ function FacultyContainer() {
   const getTableData = async () => {
     dispatch(getAllFacultyMembers("STAFF"))
       .then((res) => {
-        console.log(res);
+        res.payload = res.payload.filter((item) => item.id !== user.id);
         setSearchdata(res.payload);
       })
       .catch((e) => {
@@ -149,7 +147,7 @@ function FacultyContainer() {
   };
 
   const onSearch = (value) => {
-    const filteredData = data.filter((record) => {
+    const filteredData = members.filter((record) => {
       return (
         record.name.toLowerCase().includes(value.toLowerCase()) ||
         record.email.toLowerCase().includes(value.toLowerCase()) ||
@@ -171,7 +169,7 @@ function FacultyContainer() {
         setConfirmLoading(true);
         console.log("Received values of form: ", values);
         try {
-          const res = await api.post("/auth/faculty/add", values);
+          const res = await addFacultyMember(values);
           setConfirmLoading(false);
           setOpen(false);
           form.resetFields();
@@ -179,6 +177,7 @@ function FacultyContainer() {
             "success",
             "Faculty Member Added Successfully"
           );
+          getTableData();
         } catch (e) {
           throw new Error(e);
         }
@@ -224,7 +223,7 @@ function FacultyContainer() {
               onSearch={onSearch}
               onChange={(e) => {
                 if (e.target.value === "") {
-                  setSearchdata(data);
+                  setSearchdata(members);
                 }
               }}
               style={{

@@ -1,9 +1,11 @@
 import React from "react";
-import { Modal, Form, Input, Button, Select } from "antd";
+import { Modal, Form, Input, Button, Select, Spin } from "antd";
+import { useSelector } from "react-redux";
 
 const { Item } = Form;
 
 function AddFacultyModal({ form, open, handleOk, handleCancel }) {
+  const { loading } = useSelector((state) => state.faculty);
   return (
     <Modal
       title="Add Faculty Member"
@@ -28,7 +30,7 @@ function AddFacultyModal({ form, open, handleOk, handleCancel }) {
           type="primary"
           onClick={handleOk}
         >
-          Submit
+          {loading ? <Spin className="text-white" /> : "Done"}
         </Button>,
       ]}
     >
@@ -178,7 +180,7 @@ function AddFacultyModal({ form, open, handleOk, handleCancel }) {
             },
           ]}
         >
-          <Input placeholder="Employ Number" />
+          <Input placeholder="EMP0001" />
         </Item>
       </Form>
     </Modal>

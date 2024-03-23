@@ -251,7 +251,7 @@ function AddPublication() {
             htmlType="submit"
             className="px-2 my-2 min-w-[50%] w-[50%] h-12 bg-gray-900 text-white font-bold  rounded-lg hover:bg-white hover:text-black transition duration-300 ease-in-out "
           >
-            Schedule Presentation
+            Add Publication
           </Button>
           <Link
             to={".."}

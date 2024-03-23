@@ -6,10 +6,10 @@ import { jwtDecode } from "jwt-decode";
 const api = makeApi();
 
 export const getAllFacultyMembers = createAsyncThunk(
-  "auth/users/:role",
-  async (role, { rejectWithValue }) => {
+  "auth/faculty/all",
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/auth/users/${role}`);
+      const response = await api.get("/auth/faculty/all");
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -20,3 +20,22 @@ export const getAllFacultyMembers = createAsyncThunk(
     }
   }
 );
+
+export const addFacultyMember = async (values) => {
+  values.student = false;
+  try {
+    const response = await api.post("/auth/faculty/add", values);
+    return response.data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const updateFacultyMember = async (values) => {
+  try {
+    const response = await api.put("/auth/faculty/update", values);
+    return response.data;
+  } catch (error) {
+    throw new Error(error);
+  }
+};

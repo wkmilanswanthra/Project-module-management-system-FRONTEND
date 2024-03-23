@@ -1,32 +1,10 @@
 import React from "react";
 import { Progress, Table, Avatar, Card, ConfigProvider } from "antd";
 import { UserOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
 
 const { Column } = Table;
 const { Meta } = Card;
-
-const data = [
-  {
-    key: "1",
-    name: "John Doe",
-    registrations: "ABC123",
-  },
-  {
-    key: "2",
-    name: "Jane Smith",
-    registrations: "DEF456",
-  },
-  {
-    key: "3",
-    name: "Alice Johnson",
-    registrations: "GHI789",
-  },
-  {
-    key: "4",
-    name: "Bob Brown",
-    registrations: "JKL012",
-  },
-];
 
 const tableData = [
   {
@@ -79,29 +57,78 @@ const twoColors = {
 };
 
 function ProjectPage() {
+  const { project } = useSelector((state) => state.auth);
+
+  if (!project) {
+    return (
+      <div>
+        <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
+          Project Not Found
+        </h1>
+      </div>
+    );
+  }
+
+  const projectData = project[0];
+  const { member1, member2, member3, member4 } = projectData;
+  const members = [member1, member2, member3, member4];
+
   return (
     <div>
       <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
-        Project Name
+        {projectData.title}
       </h1>
-      <div className="text-lg font-semibold mb-4 mt-14">Project progress</div>
-      <div className="mb-8 w-full flex justify-center">
+      <div className="w-full flex justify-between mt-16">
+        <div className="mb-8 flex-1">
+          <h2 className="text-2xl font-semibold mb-4">Research Group</h2>
+          <p>{projectData.researchGroup}</p>
+        </div>
+        <div className="mb-8 flex-1">
+          <h2 className="text-2xl font-semibold mb-4">Research Area</h2>
+          <p>{projectData.researchArea}</p>
+        </div>
+      </div>
+      <div className="text-lg font-semibold mb-4 mt-6">Project progress</div>
+      <div className="mb-8 ">
         <Progress type="circle" percent={90} strokeColor={twoColors} />
       </div>
+      <div className="w-full flex mt-16">
+        <div className="mb-8  flex-1">
+          <h2 className="text-2xl font-semibold mb-4">Project Supervisor</h2>
+          <Card className="ml-10 md:w-[450px]">
+            <Meta
+              avatar={<Avatar size={64} icon={<UserOutlined />} />}
+              title={projectData.supervisor.name}
+              description={`Position: ${projectData.supervisor.position}`}
+            />
+          </Card>
+        </div>
+        <div className="mb-8 flex-1">
+          <h2 className="text-2xl font-semibold mb-4">Project Co-Supervisor</h2>
+          <Card className="ml-10 md:w-[450px]">
+            <Meta
+              avatar={<Avatar size={64} icon={<UserOutlined />} />}
+              title={projectData.coSupervisor.name}
+              description={`Position: ${projectData.coSupervisor.position}`}
+            />
+          </Card>
+        </div>
+      </div>
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4">Group Members</h2>
+        <h2 className="text-2xl font-semibold mb-4 mt-16">Group Members</h2>
         <div className="grid grid-cols-2 gap-4">
-          {data.map((member) => (
-            <Card key={member.key}>
+          {members.map((member, index) => (
+            <Card key={index}>
               <Meta
                 avatar={<Avatar size={64} icon={<UserOutlined />} />}
                 title={member.name}
-                description={`Registration: ${member.registrations}`}
+                description={`Registration: ${member.registrationNumber}`}
               />
             </Card>
           ))}
         </div>
       </div>
+
       <div className="mb-20">
         <h2 className="text-2xl font-semibold mb-4">Submissions</h2>
         <ConfigProvider

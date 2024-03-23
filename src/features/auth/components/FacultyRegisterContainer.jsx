@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Form, Input, Button, Select } from "antd";
+import { Form, Input, Button, Select, Spin } from "antd";
 import {
   UserOutlined,
   LockOutlined,
@@ -215,7 +215,7 @@ const FacultyRegisterContainer = () => {
                 },
               ]}
             >
-              <Input placeholder="Employ Number" />
+              <Input placeholder="EMP0001" />
             </Form.Item>
           </div>
           <div className="flex flex-col col-span-2 w-full items-center">
@@ -228,7 +228,7 @@ const FacultyRegisterContainer = () => {
               htmlType="submit"
               className="px-2 my-2 min-w-[50%] w-[50%]   bg-gray-900 text-white font-bold  rounded-lg hover:bg-white hover:text-black transition duration-300 ease-in-out "
             >
-              Register
+              {loading ? <Spin className="text-white" /> : "Register"}
             </Button>
             <Link
               to="/login"

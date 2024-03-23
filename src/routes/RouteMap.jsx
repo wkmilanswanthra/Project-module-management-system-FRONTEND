@@ -13,6 +13,7 @@ import ScheduleContainer from "../features/schedule/components/ScheduleContainer
 import CreateSchedule from "../features/schedule/components/CreateSchedule";
 import NewMarksheet from "../features/marksheet/components/NewMarksheet";
 import GroupsContainer from "../features/groups/components/GroupsContainer";
+import SubmissionsContainer from "../features/submissions/components/SubmissionsContainer";
 
 import StudentsDashboard from "../pages/StudentsDashboard";
 import AssessmentList from "../features/assessments/components/AssessmentList";
@@ -104,14 +105,19 @@ const routes = [
         allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
-        path: "marksheets",
-        element: <MarksheetsContainer />,
+        path: "submissions",
+        element: <SubmissionsContainer />,
         allowedRoles: [
           Roles.PROJECT_COORDINATOR,
           Roles.EXAMINER,
           Roles.SUPERVISOR,
           Roles.CO_SUPERVISOR,
         ],
+      },
+      {
+        path: "marksheets",
+        element: <MarksheetsContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR],
       },
       {
         path: "semesters",
@@ -149,7 +155,7 @@ const routes = [
         allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
-        path: "marksheets/new",
+        path: "marks/new",
         element: <NewMarksheet />,
         allowedRoles: [
           Roles.PROJECT_COORDINATOR,
