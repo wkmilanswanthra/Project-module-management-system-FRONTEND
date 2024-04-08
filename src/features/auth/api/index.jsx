@@ -60,7 +60,6 @@ export const getMe = createAsyncThunk(
         return rejectWithValue("Token not found");
       }
       const user = jwtDecode(token);
-
       return { user, token };
     } catch (error) {
       if (error.response && error.response.data.message) {

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import NotFoundImage from "../assets/pageNotFound.png";
 
 const PageNotFound = () => {
+  console.log("Not found page");
   return (
     <div className="flex flex-col flex-1 items-center justify-center h-full bg-gray-100">
       <img src={NotFoundImage} alt="404 Image" className="w-64 h-auto mb-8" />

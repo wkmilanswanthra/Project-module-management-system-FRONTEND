@@ -3,14 +3,16 @@ import { Tabs, Button } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import AssessmentView from "./AssessmentView";
 import AssessmentMarks from "./AssessmentMarks";
+import { useDispatch, useSelector } from "react-redux";
 
 const { TabPane } = Tabs;
 
 function AssessmentContainer() {
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const operations = (
-    <Button onClick={() => Navigate(-1)} danger>
+    <Button onClick={() => navigate(-1)} danger>
       Back
     </Button>
   );

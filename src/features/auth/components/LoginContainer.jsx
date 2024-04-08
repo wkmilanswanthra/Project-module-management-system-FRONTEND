@@ -70,18 +70,19 @@ const LoginContainer = () => {
         >
           <Form.Item
             name="username"
-            label="Username"
+            label="Username / Reg. Number / Emp. Number"
             rules={[
               {
                 required: true,
-                message: "Please enter your username",
+                message:
+                  "Please enter your username / registration number / employee number",
               },
             ]}
           >
             <Input
               className="w-full"
               prefix={<UserOutlined />}
-              placeholder="Username"
+              placeholder="Username / Reg. Number / Emp. Number"
             />
           </Form.Item>
           <Form.Item
@@ -116,13 +117,13 @@ const LoginContainer = () => {
           Not registered yet?
         </div>
         <Link
-          to="/signup"
+          to="/welcome/signup"
           className="w-full text-center max-w-lg mt-4 bg-gray-300 border border-gray-300 hover:bg-white text-gray-900 font-bold py-3 px-6 rounded-lg shadow-sm transition duration-300 ease-in-out"
         >
           Sign Up as a Student
         </Link>
         <div className="text-sm text-gray-500 hover:text-blue-500 mt-4 mb-2">
-          <Link to="/faculty/signup">
+          <Link to="/welcome/faculty/signup">
             <span className="font-bold"> Or </span>Sign Up as a faculty member
           </Link>
         </div>

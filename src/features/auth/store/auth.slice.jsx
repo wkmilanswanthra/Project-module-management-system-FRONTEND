@@ -1,5 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { login, register, logout, getMe } from "./../api";
+import { Roles } from "../../../assets/constants";
+
+const prioritizedRoles = [
+  Roles.PROJECT_COORDINATOR,
+  Roles.MEMBER,
+  Roles.EXAMINER,
+  Roles.SUPERVISOR,
+  Roles.CO_SUPERVISOR,
+  Roles.STAFF,
+  Roles.PROJECT_LEADER,
+  Roles.STUDENT,
+];
 
 const authSlice = createSlice({
   name: "auth",
@@ -8,9 +20,15 @@ const authSlice = createSlice({
     user: null,
     project: null,
     token: null,
+    roles: null,
     role: null,
     loading: false,
     error: null,
+  },
+  reducers: {
+    changeRole: (state, action) => {
+      state.role = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -22,7 +40,12 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user.user;
-        state.role = action.payload.role;
+        state.roles = action.payload.role;
+        state.role =
+          prioritizedRoles.find((role) =>
+            action.payload.user.role.includes(role)
+          ) || Roles.STUDENT;
+
         state.project = action.payload.project || null;
         state.isLoggedIn = true;
       })
@@ -38,7 +61,11 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user.user;
-        state.role = action.payload.role;
+        state.roles = action.payload.role;
+        state.role =
+          prioritizedRoles.find((role) =>
+            action.payload.user.role.includes(role)
+          ) || Roles.STUDENT;
         state.project = action.payload.project || null;
         state.isLoggedIn = true;
       })
@@ -54,7 +81,11 @@ const authSlice = createSlice({
         state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user.user;
-        state.role = action.payload.user.role;
+        state.roles = action.payload.user.role;
+        state.role =
+          prioritizedRoles.find((role) =>
+            action.payload.user.role.includes(role)
+          ) || Roles.STUDENT;
         state.isLoggedIn = true;
       })
       .addCase(getMe.rejected, (state, action) => {
@@ -78,5 +109,7 @@ const authSlice = createSlice({
       });
   },
 });
+
+export const { changeRole } = authSlice.actions;
 
 export default authSlice.reducer;

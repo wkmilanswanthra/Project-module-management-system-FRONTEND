@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   Divider,
   Input,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -17,95 +18,140 @@ import {
   SortAscendingOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllAssessments, deleteAssessment } from "../api";
+import { openNotificationWithIcon } from "../../../util/notifications";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Title",
-    dataIndex: "title",
-    key: "title",
-    sorter: (a, b) => a.title.localeCompare(b.title),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Description",
-    dataIndex: "description",
-    key: "description",
-    sorter: (a, b) => a.description.localeCompare(b.title),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Assessment Type",
-    dataIndex: "assessmentType",
-    key: "assessmentType",
-  },
-  {
-    title: "Semester",
-    dataIndex: "semester",
-    key: "semester",
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<EditOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    align: "center",
-  },
-];
-
-const data = [
-  {
-    key: "1",
-    title: "Assessment 1",
-    description: "Description of Assessment 1",
-    assessmentType: "Type 1",
-    semester: "First",
-  },
-  {
-    key: "2",
-    title: "Assessment 2",
-    description: "Description of Assessment 2",
-    assessmentType: "Type 2",
-    semester: "First",
-  },
-];
-
 function AssessmentContainer() {
   const [searchData, setSearchData] = React.useState([]);
+  const { assessments, error, loading } = useSelector(
+    (state) => state.assessment
+  );
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setSearchData(data);
+    fetchAllAssessments();
   }, []);
 
+  const fetchAllAssessments = () => {
+    dispatch(getAllAssessments())
+      .then((res) => {
+        if (res.error) throw new Error(res.error);
+        setSearchData(res.payload);
+      })
+      .catch((e) => {
+        openNotificationWithIcon(
+          "error",
+          "Error",
+          "Failed to fetch assessments"
+        );
+      });
+  };
+
   const onSearch = (value) => {
-    const filteredData = data.filter((record) => {
+    const filteredData = assessments.filter((record) => {
       return (
         record.title.toLowerCase().includes(value.toLowerCase()) ||
         record.description.toLowerCase().includes(value.toLowerCase()) ||
         record.assessmentType.toLowerCase().includes(value.toLowerCase()) ||
-        record.semester.toLowerCase().includes(value.toLowerCase())
+        record.semester.name.toLowerCase().includes(value.toLowerCase())
       );
     });
     setSearchData(filteredData);
   };
+
+  const handleDelete = (id) => {
+    dispatch(deleteAssessment(id))
+      .then(() => {
+        openNotificationWithIcon("success", "Success", "Assessment deleted");
+        fetchAllAssessments();
+      })
+      .catch(() => {
+        openNotificationWithIcon(
+          "error",
+          "Error",
+          "Failed to delete assessment"
+        );
+      });
+  };
+
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id.localeCompare(b.id),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      sorter: (a, b) => a.description.localeCompare(b.title),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Assessment Type",
+      dataIndex: "assessmentType",
+      key: "assessmentType",
+    },
+    {
+      title: "Semester",
+      dataIndex: "semester",
+      key: "semester",
+      render: (text, record) => <Text>{record.semester?.name}</Text>,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (record) => (
+        <Space size="middle">
+          <Button
+            onClick={() => navigate(`edit?id=${record.id}`)}
+            type="primary"
+            icon={<EditOutlined />}
+          />
+          <Popconfirm
+            title="Delete the member"
+            description="Are you sure to delete this faculty member?"
+            onConfirm={handleDelete.bind(this, record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="danger" icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      align: "center",
+    },
+  ];
 
   return (
     <ConfigProvider
@@ -137,7 +183,7 @@ function AssessmentContainer() {
             onSearch={onSearch}
             onChange={(e) => {
               if (e.target.value === "") {
-                setSearchData(data);
+                setSearchData(assessments);
               }
             }}
             style={{
@@ -155,6 +201,7 @@ function AssessmentContainer() {
           columns={columns}
           dataSource={searchData}
           pagination={{ pageSize: 15 }}
+          loading={loading}
         />
       </div>
     </ConfigProvider>

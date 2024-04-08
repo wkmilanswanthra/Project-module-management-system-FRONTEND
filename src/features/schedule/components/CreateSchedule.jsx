@@ -65,9 +65,31 @@ const CreateSchedule = () => {
           <Input type="date" />
         </Form.Item>
         <Form.Item
-          label="Time"
-          name="time"
-          rules={[{ required: true, message: "Please select a time!" }]}
+          label="Location"
+          name="location"
+          rules={[{ required: true, message: "Please select location!" }]}
+        >
+          <Select placeholder="Select an location">
+            <Option value={"Hall A"}>Hall A</Option>
+            <Option value={"Hall B"}>Hall B</Option>
+            <Option value={"Hall C"}>Hall C</Option>
+            <Option value={"Hall D"}>Hall D</Option>
+            <Option value={"Hall E"}>Hall E</Option>
+            <Option value={"Hall F"}>Hall F</Option>
+            <Option value={"Hall G"}>Hall G</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label="Start Time"
+          name="startTime"
+          rules={[{ required: true, message: "Please select a start time!" }]}
+        >
+          <Input type="time" />
+        </Form.Item>
+        <Form.Item
+          label="End Time"
+          name="endTtime"
+          rules={[{ required: true, message: "Please select a end time!" }]}
         >
           <Input type="time" />
         </Form.Item>

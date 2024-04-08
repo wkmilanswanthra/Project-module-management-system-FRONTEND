@@ -7,11 +7,12 @@ import SemesterContainer from "../features/semester/components/SemesterContainer
 import MarksheetsContainer from "../features/marksheet/components/MarksheetsContainer";
 import AssessmentsContainer from "../features/assessments/components/AssessmentsContainer";
 import CreateAssessmentContainer from "../features/assessments/components/CreateAssessmentContainer";
+import EditAssessmentContainer from "../features/assessments/components/EditAssessment";
 import RubricsContainer from "../features/rubrics/components/RubricsContainer";
 import CreateRubricsContainer from "../features/rubrics/components/CreateRubricsContainer";
 import ScheduleContainer from "../features/schedule/components/ScheduleContainer";
 import CreateSchedule from "../features/schedule/components/CreateSchedule";
-import NewMarksheet from "../features/marksheet/components/NewMarksheet";
+import NewMarking from "../features/marks/components/NewMarking";
 import GroupsContainer from "../features/groups/components/GroupsContainer";
 import SubmissionsContainer from "../features/submissions/components/SubmissionsContainer";
 
@@ -29,12 +30,13 @@ import WelcomeContainer from "../features/auth/components/WelcomeContainer";
 import LoginContainer from "../features/auth/components/LoginContainer";
 import StudentRegisterContainer from "../features/auth/components/StudentRegisterContainer";
 import FacultyRegisterContainer from "../features/auth/components/FacultyRegisterContainer";
+import VerifyEmailContainer from "./../features/auth/components/VerifyEmailContainer";
 
 import { Roles } from "../assets/constants";
 
 export const authRoutes = [
   {
-    path: "",
+    path: "/welcome",
     element: <InitialPage />,
     allowedRoles: [],
     childRoutes: [
@@ -56,6 +58,11 @@ export const authRoutes = [
       {
         path: "faculty/signup",
         element: <FacultyRegisterContainer />,
+        allowedRoles: [],
+      },
+      {
+        path: "verify-email",
+        element: <VerifyEmailContainer />,
         allowedRoles: [],
       },
     ],
@@ -140,6 +147,11 @@ const routes = [
         allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
+        path: "assessments/edit/*",
+        element: <EditAssessmentContainer />,
+        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+      },
+      {
         path: "rubrics/create",
         element: <CreateRubricsContainer />,
         allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
@@ -155,8 +167,18 @@ const routes = [
         allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
       },
       {
-        path: "marks/new",
-        element: <NewMarksheet />,
+        path: "marks/new/:id",
+        element: <NewMarking />,
+        allowedRoles: [
+          Roles.PROJECT_COORDINATOR,
+          Roles.EXAMINER,
+          Roles.SUPERVISOR,
+          Roles.CO_SUPERVISOR,
+        ],
+      },
+      {
+        path: "marks/update/:id",
+        element: <NewMarking />,
         allowedRoles: [
           Roles.PROJECT_COORDINATOR,
           Roles.EXAMINER,

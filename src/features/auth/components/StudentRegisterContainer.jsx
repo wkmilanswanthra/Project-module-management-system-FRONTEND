@@ -20,6 +20,19 @@ const StudentRegisterContainer = () => {
 
   const onFinish = (values) => {
     values.student = true;
+    values.al = {
+      stream: values.alStreams,
+      results: values.alResults,
+    };
+    delete values.alStreams;
+    delete values.alResults;
+    values.guardian = {
+      name: values.guardianName,
+      relationship: values.relationship,
+    };
+    delete values.guardianName;
+    delete values.relationship;
+
     console.log("Received values:", values);
     dispatch(register(values))
       .then((res) => {
@@ -150,6 +163,40 @@ const StudentRegisterContainer = () => {
                 <Option value="June">June</Option>
               </Select>
             </Form.Item>
+            <Form.Item
+              name="relationship"
+              label="Relationship to guardian"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select your relationship to guardian",
+                },
+              ]}
+            >
+              <Select placeholder="Select relationship">
+                <Option value="Father">Father</Option>
+                <Option value="Mother">Mother</Option>
+                <Option value="Guardian">Guardian</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="alStreams"
+              label="A/L Stream"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select your A/L stream",
+                },
+              ]}
+            >
+              <Select placeholder="Select stream">
+                <Option value="Physics">Physics</Option>
+                <Option value="Biology">Biology</Option>
+                <Option value="Commerce">Commerce</Option>
+                <Option value="Arts">Arts</Option>
+                <Option value="Technology">Technology</Option>
+              </Select>
+            </Form.Item>
           </div>
           <div className="col-span-2 md:col-span-1">
             <Form.Item
@@ -218,12 +265,50 @@ const StudentRegisterContainer = () => {
                   message: "Please enter your registration number",
                 },
                 {
-                  pattern: /^(REG\d{4})$/,
+                  pattern: /^(IT\d{10})$/,
                   message: "Please enter a valid registration number",
                 },
               ]}
             >
-              <Input placeholder="REG0001" />
+              <Input placeholder="IT0000000001" />
+            </Form.Item>
+            <Form.Item
+              name="guardianName"
+              label="Guardian Name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the name of your guardian",
+                },
+              ]}
+            >
+              <Input placeholder="Guardian Name" />
+            </Form.Item>
+            <Form.Item
+              name="address"
+              label="Temporary Residence"
+              rules={[
+                {
+                  required: true,
+                  message:
+                    "Please enter the address of your temporary residence",
+                },
+              ]}
+            >
+              <Input placeholder="Address" />
+            </Form.Item>
+            <Form.Item
+              name="alResults"
+              label="A/L Results"
+              rules={[
+                {
+                  required: true,
+                  message:
+                    "Please enter your A/L results in the format Subject:Grade, Subject:Grade, ...",
+                },
+              ]}
+            >
+              <Input placeholder="Subject:Grade, Subject:Grade, ... " />
             </Form.Item>
           </div>
           <div className="flex flex-col col-span-2 w-full items-center">
@@ -239,13 +324,13 @@ const StudentRegisterContainer = () => {
               {loading ? <Spin className="text-white" /> : "Register"}
             </Button>
             <Link
-              to="/login"
+              to="/welcome/login"
               className="px-2 my-2 w-[50%]  text-center bg-gray-300 text-gray-900 font-bold py-3 rounded-lg hover:bg-white hover:text-gray-900 shadow-sm transition duration-300 ease-in-out"
             >
               Cancel
             </Link>
             <div className="text-sm text-gray-500 hover:text-blue-500 mt-4 mb-2">
-              <Link to="/faculty/signup">
+              <Link to="/welcome/faculty/signup">
                 <span className="font-bold"> Or </span>Sign Up as a faculty
                 member
               </Link>

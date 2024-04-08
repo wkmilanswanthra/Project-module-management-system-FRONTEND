@@ -5,20 +5,18 @@ import { Roles } from "../../assets/constants";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { Link, useNavigate, redirect } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../features/auth/api";
 import { openNotificationWithIcon } from "../../util/notifications";
+import { changeRole } from "../../features/auth/store/auth.slice";
 
-const NavBar = ({ name, role }) => {
+const NavBar = ({ name }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [links, setLinks] = useState([]);
+  const { roles } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // useEffect(() => {
-  //   renderLinks();
-  // }, [role]);
 
   const logOut = () => {
     dispatch(logout())
@@ -42,7 +40,6 @@ const NavBar = ({ name, role }) => {
   function classNames(...classes) {
     return classes.filter(Boolean).join(" ");
   }
-
   return (
     <nav className="flex items-center justify-between flex-wrap p-6 shadow-sm z-[100]">
       <div className="flex items-center flex-shrink-0 mr-6">
@@ -87,6 +84,30 @@ const NavBar = ({ name, role }) => {
           >
             <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               <div className="py-1">
+                {roles.map((element) => {
+                  if (element.toString() !== "STAFF") {
+                    return (
+                      <Menu.Item key={element}>
+                        {({ active }) => (
+                          <button
+                            onClick={() => {
+                              dispatch(changeRole(element));
+                            }}
+                            className={classNames(
+                              active
+                                ? "bg-gray-100 text-gray-500"
+                                : "text-gray-900",
+                              "block w-full px-4 py-2 text-left text-sm"
+                            )}
+                          >
+                            {element.toString()}
+                          </button>
+                        )}
+                      </Menu.Item>
+                    );
+                  }
+                  return null;
+                })}
                 <Menu.Item>
                   {({ active }) => (
                     <a
@@ -100,6 +121,7 @@ const NavBar = ({ name, role }) => {
                     </a>
                   )}
                 </Menu.Item>
+
                 <Menu.Item>
                   {({ active }) => (
                     <button

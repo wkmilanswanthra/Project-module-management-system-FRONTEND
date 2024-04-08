@@ -36,7 +36,7 @@ function Sidebar({ menuItems, subMenuItems }) {
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 overflow-y-auto bg-gray-50 ">
-          <ul className="space-y-2 font-medium">
+          <ul className="space-y-2 font-medium pb-5">
             {menuItems?.map((item, index) => (
               <li key={index}>
                 <Link

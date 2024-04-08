@@ -1,14 +1,12 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
-import makeApi from "../../../config/axiosConfig";
+import makeApi from "./../../../config/axiosConfig";
 
-const api = makeApi();
-
-export const getAllStudents = createAsyncThunk(
-  "auth/students/all",
+export const fetchAllSubmissions = createAsyncThunk(
+  "submissions/fetchAllSubmissions",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get("/auth/students/all");
+      const response = await makeApi().get("/submissions");
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
@@ -20,11 +18,11 @@ export const getAllStudents = createAsyncThunk(
   }
 );
 
-export const deleteStudent = createAsyncThunk(
-  "auth/students/delete",
-  async (id, { rejectWithValue }) => {
+export const getSubmission = createAsyncThunk(
+  "submissions/getSubmission",
+  async (submissionId, { rejectWithValue }) => {
     try {
-      const response = await api.delete(`/auth/${id}`);
+      const response = await makeApi().get(`/submissions/${submissionId}`);
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {

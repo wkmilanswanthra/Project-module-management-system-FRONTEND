@@ -34,17 +34,40 @@ const columns = [
     filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
   },
   {
-    title: "Time",
-    dataIndex: "time",
-    key: "time",
-    sorter: (a, b) => a.time.localeCompare(b.time),
+    title: "Start Time",
+    dataIndex: "startTime",
+    key: "startTime",
+    sorter: (a, b) => a.startTime.localeCompare(b.startTime),
     sortIcon: ({ sortOrder }) =>
       sortOrder === "ascend" ? (
         <SortAscendingOutlined />
       ) : (
         <SortDescendingOutlined />
       ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+  },
+  {
+    title: "End Time",
+    dataIndex: "endTime",
+    key: "endTime",
+    sorter: (a, b) => a.endTime.localeCompare(b.endTime),
+    sortIcon: ({ sortOrder }) =>
+      sortOrder === "ascend" ? (
+        <SortAscendingOutlined />
+      ) : (
+        <SortDescendingOutlined />
+      ),
+  },
+  {
+    title: "Location",
+    dataIndex: "location",
+    key: "location",
+    sorter: (a, b) => a.location.localeCompare(b.location),
+    sortIcon: ({ sortOrder }) =>
+      sortOrder === "ascend" ? (
+        <SortAscendingOutlined />
+      ) : (
+        <SortDescendingOutlined />
+      ),
   },
   {
     title: "Assessment Id",
@@ -115,7 +138,9 @@ const data = [
   {
     key: "1",
     date: "2024-03-20",
-    time: "09:00 AM",
+    startTime: "09:00 AM",
+    endTime: "12:00 PM",
+    location: "Hall A",
     assessmentId: "ASS123",
     examiner1: "Examiner 1",
     examiner2: "Examiner 2",
@@ -124,7 +149,9 @@ const data = [
   {
     key: "2",
     date: "2024-03-21",
-    time: "10:30 AM",
+    startTime: "10:30 AM",
+    endTime: "01:30 PM",
+    location: "Hall B",
     assessmentId: "ASS456",
     examiner1: "Examiner 4",
     examiner2: "Examiner 5",

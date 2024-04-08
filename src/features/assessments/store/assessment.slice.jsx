@@ -1,8 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllAssessments, createAssessment } from "../api";
+import {
+  getAllAssessments,
+  createAssessment,
+  getAssessmentById,
+  updateAssessment,
+  deleteAssessment,
+} from "../api";
 
 const initialState = {
   assessments: [],
+  assessment: null,
   loading: false,
   error: null,
 };
@@ -34,6 +41,44 @@ const assessmentSlice = createSlice({
         state.assessments.push(action.payload);
       })
       .addCase(createAssessment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getAssessmentById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAssessmentById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.assessment = action.payload;
+      })
+      .addCase(getAssessmentById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateAssessment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateAssessment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.assessment = action.payload;
+      })
+      .addCase(updateAssessment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteAssessment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteAssessment.fulfilled, (state, action) => {
+        state.loading = false;
+        state.assessments = state.assessments.filter(
+          (assessment) => assessment.id !== action.payload
+        );
+      })
+      .addCase(deleteAssessment.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

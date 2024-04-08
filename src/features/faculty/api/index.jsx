@@ -39,3 +39,38 @@ export const updateFacultyMember = async (values) => {
     throw new Error(error);
   }
 };
+
+export const updateRoles = createAsyncThunk(
+  "auth/updateRoles",
+  async (data, { rejectWithValue }) => {
+    try {
+      console.log(data);
+      const response = await api.patch(`auth/change-role/${data.id}`, {
+        roles: data.roles,
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const deleteFacultyMember = createAsyncThunk(
+  "auth/deleteFacultyMember",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(`auth/${id}`);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

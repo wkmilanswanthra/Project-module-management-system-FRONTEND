@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   Divider,
   Input,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -17,136 +18,179 @@ import {
   SortDescendingOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { getAllStudents } from "../api";
+import { getAllStudents, deleteStudent } from "../api";
 import { useDispatch, useSelector } from "react-redux";
 import { openNotificationWithIcon } from "../../../util/notifications";
+import UpdateStudentModal from "../modals/UpdateStudentModal";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Student",
-    dataIndex: "name",
-    key: "name",
-    render: (text, record) => (
-      <Space size="middle">
-        <UserOutlined className="mx-4" style={{ fontSize: "22px" }} />
-        <div>
-          <div className="font-bold text-lg">{record.name}</div>
-          <div>{record.registrationNumber}</div>
-        </div>
-      </Space>
-    ),
-    sorter: (a, b) => a.name.localeCompare(b.name),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    sorter: (a, b) => a.email.localeCompare(b.email),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Contact",
-    dataIndex: "contact",
-    key: "contact",
-    sorter: (a, b) => a.contact.localeCompare(b.contact),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Specialization",
-    dataIndex: "specialization",
-    key: "specialization",
-    sorter: (a, b) => a.specialization.localeCompare(b.specialization),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Role",
-    dataIndex: "role",
-    key: "role",
-    filters: [
-      {
-        text: "Student",
-        value: "STUDENT",
-      },
-      {
-        text: "Leader",
-        value: "PROJECT_LEADER",
-      },
-    ],
-    onFilter: (value, record) => record.role === value,
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "User Created on",
-    dataIndex: "createdAt",
-    key: "createdAt",
-    sorter: (a, b) => a.createdAt.localeCompare(b.createdAt),
-    render: (text, record) => (
-      <Text>
-        {new Date(record.createdAt).toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        })}
-      </Text>
-    ),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<EditOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    align: "center",
-  },
-];
-
 function StudentsContainer() {
   const [searchData, setSearchdata] = React.useState([]);
+  const [selectedStudent, setSelectedStudent] = React.useState(null);
+  const [updateStudentModalOpen, setUpdateStudentModalOpen] =
+    React.useState(false);
+
   const { students, loading, error } = useSelector((state) => state.students);
   const dispatch = useDispatch();
 
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  const updateStudentModal = (student) => {
+    setSelectedStudent(student);
+    setUpdateStudentModalOpen(true);
+  };
+
+  const updateStudentHandleOk = () => {
+    setUpdateStudentModalOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const updateStudentHandleCancel = () => {
+    setUpdateStudentModalOpen(false);
+    setSelectedStudent(null);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteStudent(id))
+      .then(() => {
+        openNotificationWithIcon("success", "Success", "Student deleted");
+        fetchStudents();
+      })
+      .catch(() => {
+        openNotificationWithIcon("error", "Error", "Failed to delete student");
+      });
+  };
+
+  const columns = [
+    {
+      title: "Student",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <Space size="middle">
+          <UserOutlined className="mx-4" style={{ fontSize: "22px" }} />
+          <div>
+            <div className="font-bold text-lg">{record.name}</div>
+            <div>{record.registrationNumber}</div>
+          </div>
+        </Space>
+      ),
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Contact",
+      dataIndex: "contact",
+      key: "contact",
+      sorter: (a, b) => a.contact.localeCompare(b.contact),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Specialization",
+      dataIndex: "specialization",
+      key: "specialization",
+      sorter: (a, b) => a.specialization.localeCompare(b.specialization),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      filters: [
+        {
+          text: "Student",
+          value: "STUDENT",
+        },
+        {
+          text: "Leader",
+          value: "PROJECT_LEADER",
+        },
+      ],
+      onFilter: (value, record) => record.role === value,
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "User Created on",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      sorter: (a, b) => a.createdAt.localeCompare(b.createdAt),
+      render: (text, record) => (
+        <Text>
+          {new Date(record.createdAt).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })}
+        </Text>
+      ),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            type="primary"
+            onClick={() => updateStudentModal(record)}
+            icon={<EditOutlined />}
+          />
+          <Popconfirm
+            title="Delete the student"
+            description="Are you sure to delete this student?"
+            onConfirm={handleDelete.bind(this, record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="danger" icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      align: "center",
+    },
+  ];
 
   const fetchStudents = async () => {
     dispatch(getAllStudents())
@@ -206,6 +250,12 @@ function StudentsContainer() {
             allowClear
           />
         </div>
+        <UpdateStudentModal
+          student={selectedStudent}
+          open={updateStudentModalOpen}
+          handleOk={updateStudentHandleOk}
+          handleCancel={updateStudentHandleCancel}
+        />
         <Table
           loading={loading}
           className="mt-8"

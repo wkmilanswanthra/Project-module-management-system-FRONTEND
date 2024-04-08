@@ -1,60 +1,110 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { Form, Input, Button, Select } from "antd";
 import { openNotificationWithIcon } from "../../../util/notifications";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllAssessments } from "./../../assessments/api/index";
+import {
+  getRubricByAssessmentId,
+  createRubric,
+  updateRubric,
+} from "./../api/index";
 
 const { Option } = Select;
 
-const AssessmentList = [
-  {
-    title: "Assessment 1",
-    id: 1,
-  },
-  {
-    title: "Assessment 2",
-    id: 2,
-  },
-];
-
 const CreateRubricsContainer = () => {
-  const [criteriaRows, setCriteriaRows] = useState([
-    { criteria: "", description: "", weightage: "", marks: "" },
-  ]);
+  const [criteriaRows, setCriteriaRows] = useState([]);
+  const [isUpdate, setIsUpdate] = useState(false);
 
-  const handleAddRow = () => {
-    if (criteriaRows.length < 10) {
-      setCriteriaRows([
-        ...criteriaRows,
-        { criteria: "", description: "", weightage: "", marks: "" },
-      ]);
-    } else
-      openNotificationWithIcon("error", "Error", "You can add only 10 rows");
+  const { loading, error, rubric } = useSelector((state) => state.rubric);
+  const { assessments } = useSelector((state) => state.assessment);
+
+  const dispatch = useDispatch();
+
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    getAssessments();
+  }, []);
+
+  const getAssessments = () => {
+    dispatch(getAllAssessments()).then((res) => {
+      if (res.payload) {
+      }
+    });
   };
 
-  const handleRemoveRow = (index) => {
-    if (criteriaRows.length > 1) {
-      const updatedRows = [...criteriaRows];
-      updatedRows.splice(index, 1);
-      setCriteriaRows(updatedRows);
-    } else
-      openNotificationWithIcon("error", "Error", "You can't remove all rows");
+  const fetchRubric = (assessmentId) => {
+    console.log("Assessment ID:", assessmentId);
+    dispatch(getRubricByAssessmentId(assessmentId)).then((res) => {
+      console.log("Rubric:", res.payload);
+      if (res.payload.criteria) {
+        openNotificationWithIcon(
+          "success",
+          "Rubric found",
+          "Edit existing rubric"
+        );
+        setIsUpdate(true);
+        form.setFieldsValue({
+          assessmentSelect: assessmentId,
+          criteria: res.payload.criteria.rubric,
+        });
+        setCriteriaRows(res.payload.criteria.rubric);
+      } else {
+        openNotificationWithIcon(
+          "success",
+          "Rubric not found",
+          "Create new rubric"
+        );
+        setIsUpdate(false);
+        form.setFieldsValue({
+          assessmentSelect: assessmentId,
+          criteria: [],
+        });
+        setCriteriaRows([]);
+      }
+    });
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
     console.log("Form values:", e);
-    openNotificationWithIcon(
-      "success",
-      "Success",
-      "Rubric created successfully"
-    );
-  };
-
-  const handleCriteriaChange = (index, field, value) => {
-    const updatedRows = [...criteriaRows];
-    updatedRows[index][field] = value;
-    setCriteriaRows(updatedRows);
+    const criteria = e.criteria.map((c) => {
+      return {
+        criteria: c.criteria,
+        description: c.description,
+        weightage: c.weightage,
+        marks: c.marks,
+      };
+    });
+    const data = {
+      id: rubric?.id,
+      assessmentId: e.assessmentSelect,
+      criteria: {
+        rubric: criteria,
+      },
+    };
+    if (isUpdate) {
+      dispatch(updateRubric(data)).then((res) => {
+        if (res.payload) {
+          openNotificationWithIcon(
+            "success",
+            "Success",
+            "Rubric updated successfully"
+          );
+        }
+      });
+    } else {
+      dispatch(createRubric(data)).then((res) => {
+        if (res.payload) {
+          openNotificationWithIcon(
+            "success",
+            "Success",
+            "Rubric created successfully"
+          );
+        }
+      });
+    }
   };
 
   return (
@@ -70,14 +120,19 @@ const CreateRubricsContainer = () => {
         className="md:w-full w-[80%]"
       >
         <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-20">
-          Create Rubric
+          {isUpdate ? "Edit Rubric" : "Create Rubric"}
         </h1>
         <Form
+          form={form}
+          disabled={loading}
           className="w-full max-w-md md:max-w-3xl grid grid-cols-2 gap-4"
-          onSubmit={handleSubmit}
+          onFinish={handleSubmit}
           layout="vertical"
           size="large"
           requiredMark={false}
+          initialValues={{
+            criteria: criteriaRows,
+          }}
         >
           <div className="col-span-2">
             <Form.Item
@@ -85,103 +140,127 @@ const CreateRubricsContainer = () => {
               name="assessmentSelect"
               rules={[{ required: true, message: "Please select assessment" }]}
             >
-              <Select placeholder="Select assessment">
-                {AssessmentList.map((assessment) => (
+              <Select
+                placeholder="Select assessment"
+                onChange={(value) => fetchRubric(value)}
+              >
+                {assessments?.map((assessment) => (
                   <Option key={assessment.id} value={assessment.id}>
-                    {assessment.title}
+                    {`${assessment.title} - ${assessment.assessmentType}`}
                   </Option>
                 ))}
               </Select>
             </Form.Item>
-            {criteriaRows.length < 10 && (
-              <div className="col-span-3 flex items-center justify-end">
-                <Button
-                  type="button"
-                  onClick={handleAddRow}
-                  className="px-4 py-2 text-sm bg-gray-900 text-white font-bold rounded-lg hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
-                  icon={<PlusOutlined />}
-                >
-                  Add Row
-                </Button>
-              </div>
-            )}
-            {criteriaRows.map((row, index) => (
-              <div key={index} className="relative grid grid-cols-4 gap-1 mt-1">
-                <Form.Item
-                  label="Criteria"
-                  name={`criteria-${index}`}
-                  className="w-full"
-                  rules={[{ required: true, message: "Please enter criteria" }]}
-                >
-                  <Input
-                    value={row.criteria}
-                    onChange={(e) =>
-                      handleCriteriaChange(index, "criteria", e.target.value)
+
+            <Form.List
+              name="criteria"
+              rules={[
+                {
+                  validator: async (_, criteriaRows) => {
+                    if (!criteriaRows || criteriaRows.length < 1) {
+                      return Promise.reject(
+                        new Error("At least 1 criteria is required")
+                      );
                     }
-                    className="w-full text-sm rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Description"
-                  name={`description-${index}`}
-                  className="w-full"
-                  rules={[{ required: true, message: "Please enter criteria" }]}
-                >
-                  <Input
-                    value={row.description}
-                    onChange={(e) =>
-                      handleCriteriaChange(index, "description", e.target.value)
-                    }
-                    className="w-full text-sm  rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500 resize-none"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Weightage"
-                  name={`weightage-${index}`}
-                  className="w-full"
-                  rules={[{ required: true, message: "Please enter criteria" }]}
-                >
-                  <Input
-                    type="number"
-                    value={row.weightage}
-                    onChange={(e) =>
-                      handleCriteriaChange(index, "weightage", e.target.value)
-                    }
-                    className="w-full text-sm  rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Marks"
-                  name={`marks-${index}`}
-                  className="w-full"
-                  rules={[{ required: true, message: "Please enter criteria" }]}
-                >
-                  <Input
-                    type="number"
-                    value={row.marks}
-                    onChange={(e) =>
-                      handleCriteriaChange(index, "marks", e.target.value)
-                    }
-                    className="w-full text-sm  rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
-                  />
-                </Form.Item>
-                {criteriaRows.length !== 1 && (
-                  <Button
-                    type="button"
-                    onClick={() => handleRemoveRow(index)}
-                    className="absolute translate-x-[130%] right-0 top-[37%] mt-[0.3rem] mr-2 px-4 py-2 text-sm bg-red-500 text-white font-bold rounded-lg hover:bg-red-700 focus:outline-none focus:bg-red-700"
-                    icon={<MinusCircleOutlined />}
-                  />
-                )}
-              </div>
-            ))}
+                  },
+                },
+              ]}
+            >
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restfield }) => (
+                    <div
+                      key={key}
+                      className="relative grid grid-cols-4 gap-1 mt-1"
+                    >
+                      {console.log(fields)}
+                      <Form.Item
+                        label={name === 0 ? "Criteria" : ""}
+                        {...restfield}
+                        name={[name, "criteria"]}
+                        className="w-full"
+                        rules={[
+                          { required: true, message: "Please enter criteria" },
+                        ]}
+                      >
+                        <Input className="w-full text-sm rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500" />
+                      </Form.Item>
+                      <Form.Item
+                        label={name === 0 ? "Description" : ""}
+                        {...restfield}
+                        name={[name, "description"]}
+                        className="w-full"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Please enter description",
+                          },
+                        ]}
+                      >
+                        <Input className="w-full text-sm  rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500 resize-none" />
+                      </Form.Item>
+                      <Form.Item
+                        label={name === 0 ? "Weightage" : ""}
+                        {...restfield}
+                        name={[name, "weightage"]}
+                        className="w-full"
+                        rules={[
+                          { required: true, message: "Please enter weightage" },
+                        ]}
+                      >
+                        <Input
+                          type="number"
+                          className="w-full text-sm  rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label={name === 0 ? "Marks" : ""}
+                        {...restfield}
+                        name={[name, "marks"]}
+                        className="w-full"
+                        rules={[
+                          { required: true, message: "Please enter marks" },
+                        ]}
+                      >
+                        <Input
+                          type="number"
+                          className="w-full text-sm  rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:border-blue-500"
+                        />
+                      </Form.Item>
+                      {criteriaRows.length !== 1 && (
+                        <MinusCircleOutlined
+                          onClick={() => remove(name)}
+                          className={
+                            name === 0
+                              ? "absolute translate-x-[130%] right-0 top-[40%] mt-[0.3rem] mr-2 px-4 py-2"
+                              : "absolute translate-x-[130%] right-0  mt-[0.3rem] mr-2 px-4 py-2"
+                          }
+                        />
+                      )}
+                    </div>
+                  ))}
+                  {criteriaRows.length <= 10 && (
+                    <Form.Item>
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        block
+                        icon={<PlusOutlined />}
+                      >
+                        Add Criteria
+                      </Button>
+                    </Form.Item>
+                  )}
+                </>
+              )}
+            </Form.List>
             <div className="mt-10 flex flex-col col-span-2 w-full items-center">
               <Button
                 type="primary"
                 htmlType="submit"
                 className="px-2 my-2 min-w-[50%] w-[50%] bg-gray-900 text-white font-bold  rounded-lg hover:bg-white hover:text-black transition duration-300 ease-in-out "
               >
-                Create Rubric
+                {isUpdate ? "Update Rubric" : "Create Rubric"}
               </Button>
               <Link
                 to={".."}

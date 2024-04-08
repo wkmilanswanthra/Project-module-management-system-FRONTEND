@@ -47,16 +47,12 @@ const subMenuItems = [
     path: "/assessments/create",
   },
   {
-    name: "Create Rubric",
+    name: "Create/Edit Rubric",
     path: "/rubrics/create",
   },
   {
     name: "Schedule a Presentation",
     path: "/schedule/create",
-  },
-  {
-    name: "Mark Assessment",
-    path: "/marks/new",
   },
 ];
 

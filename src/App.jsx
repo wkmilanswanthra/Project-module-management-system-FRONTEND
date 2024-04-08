@@ -9,7 +9,9 @@ import { getMe } from "./features/auth/api";
 
 function App() {
   const [routes, setRoutes] = useState();
-  const { user, isLoggedIn, role } = useSelector((state) => state.auth);
+  const { user, isLoggedIn, roles, getMeLoading } = useSelector(
+    (state) => state.auth
+  );
 
   const dispatch = useDispatch();
 
@@ -24,7 +26,7 @@ function App() {
   return (
     <div className="flex flex-col min-h-screen h-screen">
       <Router>
-        {isLoggedIn && <NavBar name={user?.name} role={role} />}
+        {isLoggedIn && <NavBar name={user?.name} roles={roles} />}
         {routes}
       </Router>
     </div>

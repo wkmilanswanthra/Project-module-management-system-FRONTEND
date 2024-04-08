@@ -15,103 +15,130 @@ import {
   SortAscendingOutlined,
   SortDescendingOutlined,
 } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { fetchAllSubmissions } from "./../api/index";
+import { openNotificationWithIcon } from "../../../util/notifications";
 import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Submission ID",
-    dataIndex: "submissionId",
-    key: "submissionId",
-    sorter: (a, b) => a.submissionId.localeCompare(b.submissionId),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Group Name",
-    dataIndex: "groupName",
-    key: "groupName",
-    sorter: (a, b) => a.groupName.localeCompare(b.assessmentTitle),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Assessment title",
-    dataIndex: "assessmentTitle",
-    key: "assessmentTitle",
-    sorter: (a, b) => a.assessmentTitle.localeCompare(b.assessmentTitle),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Date of Submission",
-    dataIndex: "dateSubmitted",
-    key: "dateSubmitted",
-    sorter: (a, b) => a.dateSubmitted.localeCompare(b.dateSubmitted),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<EyeOutlined />} />
-        <Button type="primary" icon={<EditOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    width: "20%",
-    align: "center",
-  },
-];
-
-const data = [
-  {
-    submissionId: "1",
-    groupName: "Group 1",
-    assessmentTitle: "Assessment 1",
-    dateSubmitted: "2021-08-01",
-  },
-  {
-    submissionId: "2",
-    groupName: "Group 2",
-    assessmentTitle: "Assessment 2",
-    dateSubmitted: "2021-08-02",
-  },
-];
-
 function SubmissionsContainer() {
   const [searchData, setSearchData] = React.useState([]);
+  const { submissions, loading, error } = useSelector((state) => state.faculty);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setSearchData(data);
+    getTableData();
   }, []);
 
+  const getTableData = () => {
+    dispatch(fetchAllSubmissions())
+      .then((res) => {
+        if (res.payload) {
+          setSearchData(res.payload);
+        } else if (res.payload.length === 0) {
+          openNotificationWithIcon();
+        }
+      })
+      .catch((error) => {
+        openNotificationWithIcon("error", "Error", error.message);
+      });
+  };
+
   const onSearch = (value) => {
-    const filteredData = data.filter((record) => {
-      return record.submissionId.toLowerCase().includes(value.toLowerCase());
+    const filteredData = submissions.filter((record) => {
+      return (
+        record.id.toLowerCase().includes(value.toLowerCase()) ||
+        record.projectId.title.toLowerCase().includes(value.toLowerCase()) ||
+        record.assessmentId.title.toLowerCase().includes(value.toLowerCase())
+      );
     });
     setSearchData(filteredData);
   };
+
+  const navigate = useNavigate();
+
+  const columns = [
+    {
+      title: "Submission ID",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id.localeCompare(b.id),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Group Name",
+      dataIndex: "groupName",
+      key: "groupName",
+      sorter: (a, b) => a.groupName.localeCompare(b.assessmentTitle),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      render: (text, record) => <Text>{record?.projectId?.title}</Text>,
+    },
+    {
+      title: "Assessment title",
+      dataIndex: "assessmentTitle",
+      key: "assessmentTitle",
+      sorter: (a, b) => a.assessmentTitle.localeCompare(b.assessmentTitle),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      render: (text, record) => (
+        <Text>{`${record?.assessmentId?.title} - ${record?.assessmentId?.assessmentType}`}</Text>
+      ),
+    },
+    {
+      title: "Date of Submission",
+      dataIndex: "dateSubmitted",
+      key: "dateSubmitted",
+      sorter: (a, b) => a.dateSubmitted.localeCompare(b.dateSubmitted),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      render: (text, record) => (
+        <Text>{`${new Date(
+          record?.dateSubmitted
+        ).toLocaleDateString()} - ${new Date(
+          record?.dateSubmitted
+        ).toLocaleTimeString()}`}</Text>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <Space size="middle">
+          <Button type="primary" icon={<EyeOutlined />} />
+          <Button
+            type="primary"
+            onClick={() => navigate(`/marks/new/${record.id}`)}
+            icon={<EditOutlined />}
+          />
+          <Button type="danger" icon={<DeleteOutlined />} />
+        </Space>
+      ),
+      width: "20%",
+      align: "center",
+    },
+  ];
 
   return (
     <ConfigProvider
@@ -143,7 +170,7 @@ function SubmissionsContainer() {
             onSearch={onSearch}
             onChange={(e) => {
               if (e.target.value === "") {
-                setSearchData(data);
+                setSearchData(submissions);
               }
             }}
             style={{
@@ -154,6 +181,7 @@ function SubmissionsContainer() {
           />
         </div>
         <Table
+          loading={loading}
           className="mt-8"
           columns={columns}
           dataSource={searchData}

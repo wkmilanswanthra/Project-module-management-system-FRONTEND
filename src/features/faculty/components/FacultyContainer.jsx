@@ -9,6 +9,8 @@ import {
   Input,
   Modal,
   Form,
+  Popconfirm,
+  Tag,
 } from "antd";
 import {
   EditOutlined,
@@ -24,93 +26,20 @@ import { Roles } from "../../../assets/constants";
 import { openNotificationWithIcon } from "../../../util/notifications";
 import AddFacultyModal from "../modals/AddFacultyModal";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllFacultyMembers, addFacultyMember } from "../api";
+import {
+  getAllFacultyMembers,
+  addFacultyMember,
+  updateRoles,
+  deleteFacultyMember,
+} from "../api";
+import AddRolesModal from "../modals/AddRolesModal";
 
 const { Text } = Typography;
 const { Search } = Input;
-const { Item } = Form;
 
 const rolesList = Object.keys(Roles).map((role) => {
-  return {
-    text: role,
-    value: role,
-  };
+  return role;
 });
-
-const columns = [
-  {
-    title: "Faculty Members",
-    dataIndex: "name",
-    key: "name",
-    render: (text, record) => (
-      <Space size="middle">
-        <UserOutlined className="mx-4" style={{ fontSize: "22px" }} />
-        <div>
-          <div className="font-bold text-lg">{record.name}</div>
-          <div className="">{record.position}</div>
-        </div>
-      </Space>
-    ),
-    sorter: (a, b) => a.name.localeCompare(b.name),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Role",
-    dataIndex: "role",
-    key: "role",
-    width: "20%",
-    render: (text, record) => <Text>{record.role}</Text>,
-    filters: rolesList,
-    onFilter: (value, record) => record.role === value,
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    key: "email",
-    width: "20%",
-    sorter: (a, b) => a.email.localeCompare(b.email),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Contact",
-    dataIndex: "contact",
-    key: "contact",
-    width: "20%",
-    sorter: (a, b) => a.contact.localeCompare(b.contact),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Actions",
-    width: "20%",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<PlusCircleOutlined />} />
-        <Button type="primary" icon={<EditOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    align: "center",
-  },
-];
 
 function FacultyContainer() {
   const [searchData, setSearchdata] = React.useState([]);
@@ -118,7 +47,10 @@ function FacultyContainer() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [modalText, setModalText] = useState("Content of the modal");
   const { members, loading, error } = useSelector((state) => state.faculty);
-  const { user } = useSelector((state) => state.auth);
+  const { user, roles } = useSelector((state) => state.auth);
+  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [selectedId, setSelectedId] = useState("");
+  const [rolesModalOpen, setRolesModalOpen] = useState(false);
   const dispatch = useDispatch();
 
   const [form] = Form.useForm();
@@ -130,6 +62,157 @@ function FacultyContainer() {
   useEffect(() => {
     setSearchdata(members);
   }, [members]);
+
+  const showRolesModal = (id, roles) => {
+    setSelectedId(id);
+    setSelectedRoles(roles);
+    setRolesModalOpen(true);
+  };
+
+  const handleOkRolesModal = () => {
+    console.log(selectedId, selectedRoles);
+    const mem = members.find((member) => member.id === selectedId);
+    const isSupervisor = selectedRoles.includes(Roles.SUPERVISOR);
+    if (
+      isSupervisor &&
+      (mem.position === "Lecturer" ||
+        mem.position === "Assistant Lecturer" ||
+        mem.position === "Instructor")
+    ) {
+      openNotificationWithIcon(
+        "error",
+        "Lecturers, Assistant Lecturers, and Instructors cannot be assigned to supervisor roles."
+      );
+      return;
+    }
+    dispatch(updateRoles({ id: selectedId, roles: selectedRoles }))
+      .then(() => {
+        setRolesModalOpen(false);
+        openNotificationWithIcon("success", "Roles chnged successfully!");
+        getTableData();
+      })
+      .catch((e) => {
+        openNotificationWithIcon("error", "Failed to update roles");
+      });
+  };
+
+  const handleCancelRolesModal = () => {
+    setSelectedRoles([]);
+    setRolesModalOpen(false);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteFacultyMember(id))
+      .then(() => {
+        openNotificationWithIcon(
+          "success",
+          "Faculty Member Deleted Successfully"
+        );
+        getTableData();
+      })
+      .catch((e) => {
+        openNotificationWithIcon("error", "Failed to delete faculty member");
+      });
+  };
+
+  const columns = [
+    {
+      title: "Faculty Members",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <Space size="middle">
+          <UserOutlined className="mx-4" style={{ fontSize: "22px" }} />
+          <div>
+            <div className="font-bold text-lg">{record.name}</div>
+            <div className="">{record.position}</div>
+          </div>
+        </Space>
+      ),
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      width: "20%",
+      render: (text, record) => {
+        return (
+          <span>
+            {record.role.map((role) => (
+              <Tag className="mb-1" color="green" key={role}>
+                {role}
+              </Tag>
+            ))}
+          </span>
+        );
+      },
+      filters: rolesList,
+      onFilter: (value, record) => record.role === value,
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+      width: "20%",
+      sorter: (a, b) => a.email.localeCompare(b.email),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Contact",
+      dataIndex: "contact",
+      key: "contact",
+      width: "20%",
+      sorter: (a, b) => a.contact.localeCompare(b.contact),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Actions",
+      width: "20%",
+      key: "actions",
+      render: (record) => {
+        return (
+          <Space size="middle">
+            <Button
+              type="primary"
+              onClick={() => showRolesModal(record.id, record.role)}
+              icon={<PlusCircleOutlined />}
+            />
+            <Button type="primary" icon={<EditOutlined />} />
+            <Popconfirm
+              title="Delete the member"
+              description="Are you sure to delete this faculty member?"
+              onConfirm={handleDelete.bind(this, record.id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="danger" danger icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Space>
+        );
+      },
+      align: "center",
+    },
+  ];
 
   const getTableData = async () => {
     dispatch(getAllFacultyMembers("STAFF"))
@@ -255,6 +338,13 @@ function FacultyContainer() {
         handleOk={handleOk}
         handleCancel={handleCancel}
         form={form}
+      />
+      <AddRolesModal
+        selectedRoles={selectedRoles}
+        setSelectedRoles={setSelectedRoles}
+        isModalOpen={rolesModalOpen}
+        handleOk={handleOkRolesModal}
+        handleCancel={handleCancelRolesModal}
       />
     </>
   );

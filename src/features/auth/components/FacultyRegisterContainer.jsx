@@ -141,6 +141,18 @@ const FacultyRegisterContainer = () => {
                 placeholder="Confirm Password"
               />
             </Form.Item>
+            <Form.Item
+              name="address"
+              label="Address"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your address",
+                },
+              ]}
+            >
+              <Input placeholder="Address" />
+            </Form.Item>
           </div>
           <div className="col-span-2 md:col-span-1">
             <Form.Item
@@ -231,7 +243,7 @@ const FacultyRegisterContainer = () => {
               {loading ? <Spin className="text-white" /> : "Register"}
             </Button>
             <Link
-              to="/login"
+              to="/welcome/login"
               className="px-2 my-2 w-[50%]  text-center bg-gray-300 text-gray-900 font-bold py-3 rounded-lg hover:bg-white hover:text-gray-900 shadow-sm transition duration-300 ease-in-out"
             >
               Cancel

@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllStudents } from "../api";
+import { getAllStudents, deleteStudent } from "../api";
 
 const studentsSlice = createSlice({
   name: "students",
@@ -15,6 +15,20 @@ const studentsSlice = createSlice({
         state.students = action.payload;
       })
       .addCase(getAllStudents.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteStudent.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteStudent.fulfilled, (state, action) => {
+        state.loading = false;
+        state.students = state.students.filter(
+          (student) => student.id !== action.payload
+        );
+      })
+      .addCase(deleteStudent.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

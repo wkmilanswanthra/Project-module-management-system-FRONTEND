@@ -44,7 +44,7 @@ const columns = [
       <Space size="middle">
         <div>
           <div className="font-bold text-lg">{record.title}</div>
-          <div>{record.assessmentId}</div>
+          <div>{`${record.assessmentId} - ${record.type}`}</div>
         </div>
       </Space>
     ),
@@ -77,12 +77,14 @@ const data = [
     id: "RUB001",
     title: "Assessment 1",
     assessmentId: "ASS001",
+    type: "Presentation",
   },
   {
     key: "2",
     id: "RUB002",
     title: "Assessment 2",
     assessmentId: "ASS002",
+    type: "Report",
   },
 ];
 
