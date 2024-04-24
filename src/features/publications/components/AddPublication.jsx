@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   Input,
@@ -11,6 +11,14 @@ import {
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllStudents } from "../../students/api";
+import { getAllFacultyMembers } from "../../faculty/api";
+import { createNewPublication } from "../api";
+import { openNotificationWithIcon } from "../../../util/notifications";
+import { useNavigate } from "react-router-dom";
+import fs from "fs";
+import { Buffer } from "buffer";
 
 const { Option } = Select;
 
@@ -21,55 +29,75 @@ const selectBefore = (
   </Select>
 );
 
-const students = [
-  {
-    id: 1,
-    name: "John Doe",
-    value: "John Doe",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    value: "Jane Smith",
-  },
-  {
-    id: 3,
-    name: "Michael Johnson",
-    value: "Michael Johnson",
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    value: "Emily Davis",
-  },
-];
-
-const supervisors = [
-  {
-    id: 1,
-    name: "Dr. John Doe",
-    value: "Dr. John Doe",
-  },
-  {
-    id: 2,
-    name: "Dr. Jane Smith",
-    value: "Dr. Jane Smith",
-  },
-  {
-    id: 3,
-    name: "Dr. Michael Johnson",
-    value: "Dr. Michael Johnson",
-  },
-  {
-    id: 4,
-    name: "Dr. Emily Davis",
-    value: "Dr. Emily Davis",
-  },
-];
-
 function AddPublication() {
+  const { students } = useSelector((state) => state.students);
+  const { members } = useSelector((state) => state.faculty);
+  const { project } = useSelector((state) => state.auth);
+  const [studentSelectData, setStudentSelectData] = useState([]);
+  const [projectId, setProjectId] = useState("");
+  const [acceptanceLetter, setAcceptanceLetter] = useState(null);
+  const [confirmationPhoto, setConfirmationPhoto] = useState(null);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getAllStudents());
+    dispatch(getAllFacultyMembers());
+  }, [dispatch]);
+
+  useEffect(() => {
+    setProjectId(project[0].id);
+  }, [project]);
+
+  useEffect(() => {
+    const studentData = students.map((student) => {
+      return {
+        value: student.id,
+        label: student.name,
+        data: student,
+      };
+    });
+    setStudentSelectData(studentData);
+  }, [students]);
+
   const onFinish = (values) => {
     console.log("Received values:", values);
+    console.log("Acceptance Letter", acceptanceLetter);
+    console.log("Confirmation Photo", confirmationPhoto);
+    const formData = new FormData();
+    values.members.forEach((member) => {
+      formData.append("members[]", member);
+    });
+    formData.append("projectId", projectId);
+    formData.append("title", values.title);
+    formData.append("conferenceJournal", values.conferenceJournal);
+    formData.append("conferenceJournalName", values.conferenceJournalName);
+    formData.append("issnNumber", values.issnNumber);
+    formData.append("rankingLink", values.rankingLink);
+    formData.append("scopusLink", values.scopusLink);
+    formData.append("acceptanceLetterPath", acceptanceLetter);
+    formData.append("confirmationPhotoPath", confirmationPhoto);
+    formData.append("registrationFee", values.registrationFee);
+
+    formData.append("supervisor", values.supervisor);
+    formData.append("cosupervisor", values.cosupervisor);
+    dispatch(createNewPublication(formData)).then((res) => {
+      if (res.payload) {
+        openNotificationWithIcon(
+          "success",
+          "Publication Added",
+          "Publication has been added successfully"
+        );
+        navigate("/");
+      } else {
+        openNotificationWithIcon(
+          "error",
+          "Error",
+          "Publication could not be added"
+        );
+      }
+    });
   };
 
   const handleChange = (value) => {
@@ -153,8 +181,32 @@ function AddPublication() {
           name="acceptanceLetter"
           valuePropName="fileList"
           getValueFromEvent={normFile}
+          rules={[
+            { required: true, message: "Please upload the acceptance letter!" },
+          ]}
         >
-          <Upload name="logo" action="/upload.do" listType="picture">
+          <Upload
+            maxCount={1}
+            name="file"
+            listType="picture"
+            action={"http://localhost:3000/api/v1/publications/upload"}
+            onChange={(info) => {
+              if (info.file.xhr) {
+                console.log(JSON.parse(info.file.xhr.response));
+                setAcceptanceLetter(
+                  JSON.parse(info.file.xhr.response).file.path
+                );
+              }
+              if (info.file.status !== "uploading") {
+                console.log(info.file, info.fileList);
+              }
+              if (info.file.status === "done") {
+                message.success(`${info.file.name} file uploaded successfully`);
+              } else if (info.file.status === "error") {
+                message.error(`${info.file.name} file upload failed.`);
+              }
+            }}
+          >
             <Button icon={<UploadOutlined />}>Click to upload</Button>
           </Upload>
         </Form.Item>
@@ -164,8 +216,36 @@ function AddPublication() {
           name="confirmationPhoto"
           valuePropName="fileList"
           getValueFromEvent={normFile}
+          rules={[
+            {
+              required: true,
+              message: "Please upload the confirmation photo!",
+            },
+          ]}
         >
-          <Upload name="logo" action="/upload.do" listType="picture">
+          <Upload
+            maxCount={1}
+            name="file"
+            listType="picture"
+            action={"http://localhost:3000/api/v1/publications/upload"}
+            onChange={(info) => {
+              if (info.file.xhr) {
+                console.log(JSON.parse(info.file.xhr.response));
+                setConfirmationPhoto(
+                  JSON.parse(info.file.xhr.response).file.path
+                );
+              }
+
+              if (info.file.status !== "uploading") {
+                console.log(info.file, info.fileList);
+              }
+              if (info.file.status === "done") {
+                message.success(`${info.file.name} file uploaded successfully`);
+              } else if (info.file.status === "error") {
+                message.error(`${info.file.name} file upload failed.`);
+              }
+            }}
+          >
             <Button icon={<UploadOutlined />}>Click to upload</Button>
           </Upload>
         </Form.Item>
@@ -179,14 +259,31 @@ function AddPublication() {
         >
           <InputNumber addonBefore={selectBefore} defaultValue={0} />
         </Form.Item>
-        <Form.Item label="Select Members" name="members">
+        <Form.Item
+          label="Select Members"
+          name="members"
+          rules={[
+            { required: true, message: "Please select members!" },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (value.length < 2) {
+                  return Promise.reject(
+                    new Error("Please select at least 2 members!")
+                  );
+                }
+                return Promise.resolve();
+              },
+            }),
+          ]}
+        >
           <Select
             mode="multiple"
             style={{ width: "100%" }}
             onChange={handleChange}
             optionLabelProp="label"
-            options={students}
-            optionRender={(option) => <Space>{option.data.name}</Space>}
+            maxLength={4}
+            options={studentSelectData}
+            optionRender={(option) => <Space>{option.data.label}</Space>}
           />
         </Form.Item>
         <Form.Item
@@ -210,8 +307,8 @@ function AddPublication() {
           ]}
         >
           <Select>
-            {supervisors.map((supervisor) => (
-              <Option key={supervisor.id} value={supervisor.value}>
+            {members?.map((supervisor) => (
+              <Option key={supervisor.id} value={supervisor.id}>
                 {supervisor.name}
               </Option>
             ))}
@@ -238,8 +335,8 @@ function AddPublication() {
           ]}
         >
           <Select>
-            {supervisors.map((supervisor) => (
-              <Option key={supervisor.id} value={supervisor.value}>
+            {members?.map((supervisor) => (
+              <Option key={supervisor.id} value={supervisor.id}>
                 {supervisor.name}
               </Option>
             ))}

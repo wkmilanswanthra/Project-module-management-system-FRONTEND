@@ -47,20 +47,12 @@ export const register = createAsyncThunk(
   }
 );
 
-export const logout = createAsyncThunk("auth/logout", async () => {
-  localStorage.removeItem("token");
-});
-
-export const getMe = createAsyncThunk(
-  "auth/getMe",
-  async (_, { rejectWithValue, fulfillWithValue }) => {
+export const verifyEmail = createAsyncThunk(
+  "auth/verifyEmail",
+  async (data, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token") || "";
-      if (!token) {
-        return rejectWithValue("Token not found");
-      }
-      const user = jwtDecode(token);
-      return { user, token };
+      const response = await api.post("/auth/verify-email", data);
+      return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
         return rejectWithValue(error.response.data.message);
@@ -70,3 +62,46 @@ export const getMe = createAsyncThunk(
     }
   }
 );
+
+export const logout = createAsyncThunk("auth/logout", async () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("project");
+});
+
+export const getMe = createAsyncThunk(
+  "auth/getMe",
+  async (_, { rejectWithValue, fulfillWithValue }) => {
+    try {
+      const token = localStorage.getItem("token") || "";
+      let project = localStorage.getItem("project") || "";
+      project = project ? JSON.parse(project) : null;
+      if (!token) {
+        return rejectWithValue("Token not found");
+      }
+      const user = jwtDecode(token);
+      return { user, token, project };
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+// export const getMe = createAsyncThunk(
+//   "auth/getMe",
+//   async (_, { rejectWithValue, fulfillWithValue }) => {
+//     try {
+//       const response = await makeApi().get("/auth/me");
+//       return { ...response.data };
+//     } catch (error) {
+//       if (error.response && error.response.data.message) {
+//         return rejectWithValue(error.response.data.message);
+//       } else {
+//         return rejectWithValue(error.message);
+//       }
+//     }
+//   }
+// );

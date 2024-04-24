@@ -5,11 +5,13 @@ import {
   getAssessmentById,
   updateAssessment,
   deleteAssessment,
+  getTotalNumberOfAssessments,
 } from "../api";
 
 const initialState = {
   assessments: [],
   assessment: null,
+  totalNumberOfAssessments: 0,
   loading: false,
   error: null,
 };
@@ -79,6 +81,18 @@ const assessmentSlice = createSlice({
         );
       })
       .addCase(deleteAssessment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getTotalNumberOfAssessments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTotalNumberOfAssessments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.totalNumberOfAssessments = action.payload;
+      })
+      .addCase(getTotalNumberOfAssessments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

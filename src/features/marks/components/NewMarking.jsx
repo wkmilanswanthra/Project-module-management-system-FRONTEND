@@ -56,24 +56,41 @@ const NewMarking = () => {
                 dispatch(getMarkingBySubmissionId(id)).then((res) => {
                   console.log(res);
                   if (res.payload) {
-                    const markingData = res.payload.marking.marks.map(
-                      (item, index) => {
-                        const data = {};
-                        item.marks.forEach((mark, index1) => {
-                          data[`Student${index + 1}-${index1}`] = mark.marks;
-                        });
-                        data[`student${index + 1}-Comments`] = item.comments;
-                        return data;
-                      }
+                    const userIndex = res.payload.marking.findIndex(
+                      (item) => item.marker === user.id
                     );
+
+                    if (userIndex === -1) {
+                      setIsUpdate(false);
+                      return;
+                    }
+
+                    console.log("userIndex", userIndex);
+
+                    console.log("res.payload", res.payload.marking[userIndex]);
+
+                    const markingData = res.payload.marking[
+                      userIndex
+                    ].marks.map((item, index) => {
+                      const data = {};
+                      item.marks.forEach((mark, index1) => {
+                        data[`Student${index + 1}-${index1}`] = mark.marks;
+                      });
+                      data[`student${index + 1}-Comments`] = item.comments;
+                      return data;
+                    });
+
                     const x = markingData.reduce((acc, curr) => {
                       return { ...acc, ...curr };
                     }, {});
+
                     console.log(x);
+
                     form.setFieldsValue({
                       comments: res.payload.marking.comments,
                       ...x,
                     });
+
                     setIsUpdate(true);
                   } else if (res.payload.length === 0) {
                     openNotificationWithIcon(
@@ -108,13 +125,13 @@ const NewMarking = () => {
 
   const onFinish = (values) => {
     console.log(values);
-    const data = {
-      id: marking.id,
-      submissionId: submission.id,
-      marking: null,
+    let data1 = {
+      id: marking.id || null,
+      submissionId: marking.submissionId || id,
+      marking: marking.marking || [],
     };
 
-    const marksData = {
+    let marksData = {
       marker: user.id,
       comments: values.comments,
       marks: [],
@@ -122,8 +139,8 @@ const NewMarking = () => {
 
     for (let i = 0; i < 4; i++) {
       const mark = {
-        studentId: submission.projectId[`member${i + 1}`].id,
-        studentName: submission.projectId[`member${i + 1}`].name,
+        studentId: submission.project[`member${i + 1}`].id,
+        studentName: submission.project[`member${i + 1}`].name,
         marks: [],
         comments: values[`student${i + 1}-Comments`],
       };
@@ -146,12 +163,22 @@ const NewMarking = () => {
       marksData.marks.push(mark);
     }
 
-    data.marking = marksData;
+    const x = data1.marking.findIndex((item) => item.marker === user.id);
 
-    console.log(data);
+    if (x === -1) {
+      data1.marking = [...data1.marking, marksData];
+    } else {
+      data1.marking = data1.marking.map((item, index) => {
+        if (index === x) {
+          return marksData;
+        } else {
+          return item;
+        }
+      });
+    }
 
     if (isUpdate) {
-      dispatch(updateMarking(data))
+      dispatch(updateMarking(data1))
         .then((res) => {
           if (res.payload) {
             openNotificationWithIcon(
@@ -172,7 +199,7 @@ const NewMarking = () => {
           openNotificationWithIcon("error", "Error", error.message);
         });
     } else {
-      dispatch(createNewmarking(data))
+      dispatch(createNewmarking(data1))
         .then((res) => {
           if (res.payload) {
             openNotificationWithIcon(
@@ -225,7 +252,7 @@ const NewMarking = () => {
       align: "center",
     },
     {
-      title: submission?.projectId?.member1?.name || "Student 1",
+      title: submission?.project?.member1?.name || "Student 1",
       dataIndex: "student1",
       key: "student1",
       render: (text, record, index) => {
@@ -255,7 +282,7 @@ const NewMarking = () => {
       width: 150,
     },
     {
-      title: submission?.projectId?.member2?.name || "Student 2",
+      title: submission?.project?.member2?.name || "Student 2",
       dataIndex: "student2",
       key: "student2",
       render: (text, record, index) => {
@@ -285,7 +312,7 @@ const NewMarking = () => {
       width: 150,
     },
     {
-      title: submission?.projectId?.member3?.name || "Student 3",
+      title: submission?.project?.member3?.name || "Student 3",
       dataIndex: "student3",
       key: "student3",
       render: (text, record, index) => {
@@ -315,7 +342,7 @@ const NewMarking = () => {
       width: 150,
     },
     {
-      title: submission?.projectId?.member4?.name || "Student 4",
+      title: submission?.project?.member4?.name || "Student 4",
       dataIndex: "student4",
       key: "student4",
       render: (text, record, index) => {
@@ -355,7 +382,7 @@ const NewMarking = () => {
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Group Name:</h2>
         <p className="text-gray-700">
-          {submission?.projectId?.title} - ({submission?.projectId?.id})
+          {submission?.project?.title} - ({submission?.project?.id})
         </p>
       </div>
       <div className="mb-6">

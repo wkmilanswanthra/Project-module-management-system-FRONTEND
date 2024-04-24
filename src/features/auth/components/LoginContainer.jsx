@@ -19,6 +19,12 @@ const LoginContainer = () => {
       .then((res) => {
         if (res.payload.token) {
           localStorage.setItem("token", res.payload.token);
+          if (res.payload.project) {
+            localStorage.setItem(
+              "project",
+              JSON.stringify(res.payload.project)
+            );
+          }
           openNotificationWithIcon(
             "success",
             "Login Successful",

@@ -12,21 +12,23 @@ const ApplicationRoutes = () => {
   const { isLoggedIn, role, project } = useSelector((state) => state.auth);
   const [allowedRoutes, setAllowedRoutes] = useState([]);
   const [allowedAuthRoutes, setAllowedAuthRoutes] = useState([]);
+  const [isProjectAvailable, setIsProjectAvailable] = useState(false);
 
   useEffect(() => {
-    setAllowedRoutes(setupRoutes());
+    console.log("project", project);
+    setAllowedRoutes(setupRoutes(project));
     setAllowedAuthRoutes(getAuthRoutes());
   }, []);
 
   useEffect(() => {
-    setAllowedRoutes(setupRoutes());
+    setAllowedRoutes(setupRoutes(project));
     setAllowedAuthRoutes(getAuthRoutes());
-  }, [isLoggedIn, role]);
+  }, [isLoggedIn, role, project]);
 
-  const setupRoutes = () => {
+  const setupRoutes = (project) => {
     let y = [];
 
-    getRoutes(project).forEach((route) => {
+    getRoutes(!!project).forEach((route) => {
       if (route.allowedRoles.includes(role)) {
         let x = {
           path: route.path,

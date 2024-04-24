@@ -1,144 +1,126 @@
 import React from "react";
-import { Table, ConfigProvider } from "antd";
+import { Table, ConfigProvider, Spin } from "antd";
+import { useSelector, useDispatch } from "react-redux";
+import { getRubricByAssessmentId } from "../../rubrics/api";
+import { getMarkingBySubmissionId } from "../../marks/api";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import ExpandRow from "./../table/ExpandRow";
+import { getScheduleByAssessmentId } from "../../schedule/api";
+import CommentsComponent from "./CommentsComponent";
 
-const presentationMarksData = [
-  {
-    criteria: "Content",
-    description: "Quality of content",
-    weightage: 20,
-    marks: 15,
-    examiner1: 10,
-    examiner2: 12,
-    examiner3: 8,
-  },
-  {
-    criteria: "Structure",
-    description: "Organization and structure",
-    weightage: 15,
-    marks: 12,
-    examiner1: 8,
-    examiner2: 10,
-    examiner3: 6,
-  },
-  {
-    criteria: "Delivery",
-    description: "Delivery and presentation skills",
-    weightage: 25,
-    marks: 20,
-    examiner1: 15,
-    examiner2: 18,
-    examiner3: 12,
-  },
-  {
-    criteria: "Visuals",
-    description: "Use of visuals and multimedia",
-    weightage: 10,
-    marks: 8,
-    examiner1: 5,
-    examiner2: 6,
-    examiner3: 4,
-  },
-  {
-    criteria: "Conclusion",
-    description: "Clarity of conclusion",
-    weightage: 10,
-    marks: 9,
-    examiner1: 6,
-    examiner2: 7,
-    examiner3: 5,
-  },
-  {
-    criteria: "Grammar",
-    description: "Grammar and language usage",
-    weightage: 10,
-    marks: 7,
-    examiner1: 4,
-    examiner2: 5,
-    examiner3: 3,
-  },
-  {
-    criteria: "References",
-    description: "Quality of references",
-    weightage: 20,
-    marks: 18,
-    examiner1: 12,
-    examiner2: 15,
-    examiner3: 10,
-  },
-];
+function AssessmentMarks({ data }) {
+  const rubric = useSelector((state) => state.rubric);
+  const marks = useSelector((state) => state.marks);
+  const sche = useSelector((state) => state.schedule);
+  const { project } = useSelector((state) => state.auth);
 
-const reportMarksData = [
-  {
-    criteria: "Introduction",
-    description: "Clarity of introduction",
-    weightage: 10,
-    marks: 8,
-    examiner1: 5,
-    examiner2: 6,
-    examiner3: 4,
-  },
-  {
-    criteria: "Methodology",
-    description: "Appropriate research methodology",
-    weightage: 15,
-    marks: 13,
-    examiner1: 9,
-    examiner2: 10,
-    examiner3: 8,
-  },
-  {
-    criteria: "Analysis",
-    description: "Quality of data analysis",
-    weightage: 20,
-    marks: 16,
-    examiner1: 11,
-    examiner2: 13,
-    examiner3: 9,
-  },
-  {
-    criteria: "Findings",
-    description: "Clarity of findings",
-    weightage: 15,
-    marks: 11,
-    examiner1: 7,
-    examiner2: 8,
-    examiner3: 6,
-  },
-  {
-    criteria: "Discussion",
-    description: "Depth of discussion",
-    weightage: 20,
-    marks: 17,
-    examiner1: 12,
-    examiner2: 15,
-    examiner3: 10,
-  },
-  {
-    criteria: "Conclusion",
-    description: "Quality of conclusion",
-    weightage: 10,
-    marks: 9,
-    examiner1: 6,
-    examiner2: 7,
-    examiner3: 5,
-  },
-  {
-    criteria: "References",
-    description: "Quality of references",
-    weightage: 20,
-    marks: 18,
-    examiner1: 12,
-    examiner2: 15,
-    examiner3: 10,
-  },
-];
+  const [assessmentType, setAssessmentType] = useState("");
+  const [rubricData, setRubricData] = useState([]);
+  const [markData, setMarkData] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [summary, setSummary] = useState({});
 
-function AssessmentMarks({ type }) {
-  type = "presentation";
-  const data =
-    type === "presentation" ? presentationMarksData : reportMarksData;
+  const dispatch = useDispatch();
 
-  let totalMarksObtained = 0;
+  const id = useParams().id;
+
+  useEffect(() => {
+    dispatch(getScheduleByAssessmentId(id));
+    dispatch(getRubricByAssessmentId(id));
+    dispatch(getMarkingBySubmissionId(data?.id));
+    setAssessmentType(data?.assessmentId?.assessmentType);
+  }, []);
+
+  useEffect(() => {
+    if (rubric?.rubric?.criteria?.rubric) {
+      setRubricData(rubric.rubric.criteria.rubric);
+    }
+  }, [rubric?.rubric]);
+
+  useEffect(() => {
+    if (marks?.marking?.marking) {
+      setMarkData(marks.marking.marking);
+    }
+  }, [marks?.marking]);
+
+  useEffect(() => {
+    if (rubricData.length > 0 && markData.length > 0) {
+      calculateMarks();
+    }
+  }, [rubricData, markData]);
+
+  useEffect(() => {
+    if (summary.totalMarks && summary.totalWeightage) {
+      setSummary({
+        ...summary,
+        percentage: (summary.totalMarks / summary.totalWeightage) * 100,
+      });
+    }
+  }, [tableData]);
+
+  const calculateMarks = () => {
+    let totMarks = 0;
+    let totalWeightage = 0;
+    const updatedTableData = rubricData.map((criteria, index) => {
+      let updatedCriteria = { ...criteria, key: index };
+      updatedCriteria.assessmentType = assessmentType;
+      markData.forEach((mark) => {
+        const examinerIds = [
+          sche.schedule?.examiner1?.id,
+          sche.schedule?.examiner2?.id,
+          sche.schedule?.examiner3?.id,
+        ];
+        const supervisorId = project[0].supervisor.id;
+        const coSupervisorId = project[0].coSupervisor.id;
+
+        const getAssessorType = (marker) => {
+          if (examinerIds.includes(marker)) return "examiner";
+          if (marker === supervisorId) return "supervisor";
+          if (marker === coSupervisorId) return "cosupervisor";
+          return null;
+        };
+
+        mark.marks.forEach((m) => {
+          const assessorType = getAssessorType(mark.marker);
+          if (!assessorType) return;
+
+          const assessorKey =
+            assessorType + (assessorType === "examiner" ? mark.marker : "");
+          const assessor = updatedCriteria[assessorKey] || {
+            total: 0,
+            ind: [],
+          };
+
+          m.marks?.forEach((n) => {
+            if (n.criteria === criteria.criteria) {
+              const z = {
+                comments: m.comments,
+                studentName: m.studentName,
+                studentId: m.studentId,
+                marks: n.marks,
+              };
+              assessor.total += parseInt(n.marks);
+              assessor.ind.push(z);
+            }
+          });
+          totMarks += assessor.total;
+          updatedCriteria[assessorKey] = assessor;
+        });
+      });
+      return updatedCriteria;
+    });
+    setTableData(updatedTableData);
+    rubricData.forEach((criteria) => {
+      totalWeightage += criteria.weightage;
+    });
+    assessmentType === "Presentation"
+      ? setSummary({ totalMarks: totMarks / 3, totalWeightage: totalWeightage })
+      : setSummary({
+          totalMarks: totMarks / 2,
+          totalWeightage: totalWeightage,
+        });
+  };
 
   const columns = [
     { title: "Criteria", dataIndex: "criteria", key: "criteria" },
@@ -149,130 +131,143 @@ function AssessmentMarks({ type }) {
       key: "weightage",
       align: "center",
     },
-    { title: "Marks", dataIndex: "marks", key: "marks", align: "center" },
+    { title: "Max Marks", dataIndex: "marks", key: "marks", align: "center" },
   ];
 
-  if (type === "presentation") {
-    totalMarksObtained =
-      (data.reduce((acc, curr) => acc + curr.examiner1, 0) +
-        data.reduce((acc, curr) => acc + curr.examiner2, 0) +
-        data.reduce((acc, curr) => acc + curr.examiner3, 0)) /
-      3;
+  if (assessmentType === "Presentation") {
     columns.push(
       {
-        title: "Examiner 1",
+        title: "Examiner 1 Total",
         dataIndex: "examiner1",
-        key: "examiner1",
+        key: "key",
         align: "center",
+        render: (text, record) => <p>{record.examiner1.total}</p>,
       },
       {
-        title: "Examiner 2",
+        title: "Examiner 2 Total",
         dataIndex: "examiner2",
-        key: "examiner2",
+        key: "key",
         align: "center",
+        render: (text, record) => <p>{record.examiner2.total}</p>,
       },
       {
-        title: "Examiner 3",
+        title: "Examiner 3 Total",
         dataIndex: "examiner3",
-        key: "examiner3",
+        key: "key",
         align: "center",
+        render: (text, record) => <p>{record.examiner3.total}</p>,
       }
     );
   } else {
-    totalMarksObtained =
-      (data.reduce((acc, curr) => acc + curr.supervisor, 0) +
-        data.reduce((acc, curr) => acc + curr.cosupervisor, 0)) /
-      2;
     columns.push(
       {
-        title: "Supervisor",
+        title: "Supervisor Total",
         dataIndex: "supervisor",
-        key: "supervisor",
+        key: "key",
         align: "center",
+        render: (text, record) => <p>{record.supervisor.total}</p>,
       },
       {
-        title: "Co-Supervisor",
+        title: "Co-Supervisor Total",
         dataIndex: "cosupervisor",
-        key: "cosupervisor",
+        key: "key",
         align: "center",
+        render: (text, record) => <p>{record.cosupervisor?.total}</p>,
       }
     );
   }
-
-  const totalWeightage = data.reduce((acc, curr) => acc + curr.weightage, 0);
-  const percentage = (totalMarksObtained / totalWeightage) * 100;
 
   let grade = "";
-  if (percentage >= 90) {
+  if (summary.percentage && summary.percentage >= 90) {
     grade = "A";
-  } else if (percentage >= 80) {
+  } else if (summary.percentage && summary.percentage >= 80) {
     grade = "B";
-  } else if (percentage >= 70) {
+  } else if (summary.percentage && summary.percentage >= 70) {
     grade = "C";
-  } else if (percentage >= 60) {
+  } else if (summary.percentage && summary.percentage >= 60) {
     grade = "D";
-  } else {
+  } else if (summary.percentage) {
     grade = "F";
+  } else {
+    grade = "N/A";
   }
-
   return (
     <div>
-      <div className="text-xl font-semibold mb-4">Assessment Summary</div>
-      <div className="grid grid-cols-2 gap-8 mb-14">
-        <div>
-          <div className="text-lg font-semibold mb-4">Total marks:</div>
-          <div className="text-5xl font-semibold mb-4">
-            {totalMarksObtained.toFixed(0)}
+      <Spin spinning={false}>
+        <div className="text-xl font-semibold mb-4">Assessment Summary</div>
+        <div className="grid grid-cols-2 gap-8 mb-14">
+          <div>
+            <div className="text-lg font-semibold mb-4">Total marks:</div>
+            <div className="text-5xl font-semibold mb-4">
+              {summary?.totalMarks?.toFixed(0)}
+            </div>
+            <div className="text-lg font-semibold mb-4">Total Weightage:</div>
+            <div className="text-5xl font-semibold mb-4">
+              {summary?.totalWeightage?.toFixed(2)}
+            </div>
           </div>
-          <div className="text-lg font-semibold mb-4">Total Weightage:</div>
-          <div className="text-5xl font-semibold mb-4">{totalWeightage}</div>
+          <div>
+            <div className="text-lg font-semibold mb-4">Percentage:</div>
+            <div className="text-5xl font-semibold mb-4">
+              {summary?.percentage?.toFixed(2)}%
+            </div>
+            <div className="text-lg font-semibold mb-4">Grade:</div>
+            <div
+              className={`${
+                grade === "N/A" ? "text-xl" : "text-5xl"
+              } text-white font-semibold mb-4 rounded-lg w-16 h-16 flex items-center justify-center ml-10 ${
+                grade === "A"
+                  ? "bg-green-400"
+                  : grade === "B"
+                  ? "bg-blue-400"
+                  : grade === "C"
+                  ? "bg-yellow-400"
+                  : grade === "D"
+                  ? "bg-orange-400"
+                  : grade === "F"
+                  ? "bg-red-400"
+                  : "bg-gray-400"
+              }`}
+            >
+              {grade}
+            </div>
+          </div>
         </div>
-        <div>
-          <div className="text-lg font-semibold mb-4">Percentage:</div>
-          <div className="text-5xl font-semibold mb-4">
-            {percentage.toFixed(2)}%
-          </div>
-          <div className="text-lg font-semibold mb-4">Grade:</div>
-          <div
-            className={`text-5xl text-white font-semibold mb-4 rounded-lg w-16 h-16 flex items-center justify-center ml-10 ${
-              grade === "A"
-                ? "bg-green-400"
-                : grade === "B"
-                ? "bg-blue-400"
-                : grade === "C"
-                ? "bg-yellow-400"
-                : grade === "D"
-                ? "bg-orange-400"
-                : "bg-red-400"
-            }`}
-          >
-            {grade}
-          </div>
-        </div>
-      </div>
-      <h2 className="text-xl font-semibold mb-4">
-        {type === "presentation" ? "Presentation" : "Report"} Marks
-      </h2>
-      <ConfigProvider
-        theme={{
-          components: {
-            Table: {
-              headerBg: "#222",
-              headerColor: "#fff",
-              headerFilterHoverBg: "#fff",
-              headerSortActiveBg: "#222",
-              headerSortHoverBg: "#222",
-            },
-          },
-        }}
-      >
-        <Table
-          className="mb-20"
-          dataSource={data}
-          columns={columns}
-          pagination={false}
+        <div className="text-xl font-semibold mb-4">Comments</div>
+        <CommentsComponent
+          data={data}
+          marks={markData}
+          project={project}
+          assessmentType={assessmentType}
+          rubric={rubricData}
         />
-      </ConfigProvider>
+        <h2 className="text-xl font-semibold mb-4">
+          {assessmentType === "Presentation" ? "Presentation" : "Report"} Marks
+        </h2>
+        <ConfigProvider
+          theme={{
+            components: {
+              Table: {
+                headerBg: "#222",
+                headerColor: "#fff",
+                headerFilterHoverBg: "#fff",
+                headerSortActiveBg: "#222",
+                headerSortHoverBg: "#222",
+              },
+            },
+          }}
+        >
+          <Table
+            className="mb-20"
+            dataSource={tableData}
+            columns={columns}
+            pagination={false}
+            expandable={{
+              expandedRowRender: (record) => ExpandRow(record),
+            }}
+          />
+        </ConfigProvider>
+      </Spin>
     </div>
   );
 }

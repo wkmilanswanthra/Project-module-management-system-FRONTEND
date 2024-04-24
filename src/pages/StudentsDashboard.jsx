@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar/Sidebar";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllSemesters } from "./../features/semester/api/index";
 
 const menuItems = [
   {
@@ -23,6 +24,12 @@ const subMenuItems = [
 
 function StudentsDashboard() {
   const { project } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getAllSemesters());
+  }, [dispatch]);
 
   return project ? (
     <>

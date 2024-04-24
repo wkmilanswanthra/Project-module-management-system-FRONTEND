@@ -33,3 +33,19 @@ export const getSubmission = createAsyncThunk(
     }
   }
 );
+
+export const getSubmissionByProjectId = createAsyncThunk(
+  "submissions/getSubmissionByProjectId",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await makeApi().get(`/submissions/project/${id}`);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);

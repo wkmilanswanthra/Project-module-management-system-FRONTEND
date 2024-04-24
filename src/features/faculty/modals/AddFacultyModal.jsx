@@ -4,8 +4,22 @@ import { useSelector } from "react-redux";
 
 const { Item } = Form;
 
-function AddFacultyModal({ form, open, handleOk, handleCancel }) {
+function AddFacultyModal({
+  form,
+  open,
+  handleOk,
+  handleCancel,
+  selecetedUser,
+  isUpdate,
+}) {
   const { loading } = useSelector((state) => state.faculty);
+
+  React.useEffect(() => {
+    if (selecetedUser) {
+      form.setFieldsValue(selecetedUser);
+    }
+  }, [selecetedUser]);
+
   return (
     <Modal
       title="Add Faculty Member"
@@ -57,6 +71,10 @@ function AddFacultyModal({ form, open, handleOk, handleCancel }) {
               type: "email",
               message: "Please input your email!",
             },
+            {
+              pattern: /^[a-zA-Z0-9._%+-]+@sliit\.lk$/,
+              message: "Please enter a valid SLIIT email address",
+            },
           ]}
         >
           <Input />
@@ -75,44 +93,50 @@ function AddFacultyModal({ form, open, handleOk, handleCancel }) {
           <Input />
         </Item>
 
-        <Item
-          label="Password"
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Please input your password!",
-            },
-          ]}
-          hasFeedback
-        >
-          <Input.Password />
-        </Item>
-
-        <Item
-          label="Confirm Password"
-          name="confirm"
-          dependencies={["password"]}
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: "Please confirm your password!",
-            },
-            ({ getFieldValue }) => ({
-              validator(_, value) {
-                if (!value || getFieldValue("password") === value) {
-                  return Promise.resolve();
-                }
-                return Promise.reject(
-                  new Error("The two passwords that you entered do not match!")
-                );
+        {!isUpdate && (
+          <Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
               },
-            }),
-          ]}
-        >
-          <Input.Password />
-        </Item>
+            ]}
+            hasFeedback
+          >
+            <Input.Password />
+          </Item>
+        )}
+
+        {!isUpdate && (
+          <Item
+            label="Confirm Password"
+            name="confirm"
+            dependencies={["password"]}
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Please confirm your password!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      "The two passwords that you entered do not match!"
+                    )
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password />
+          </Item>
+        )}
 
         <Item
           name="contact"

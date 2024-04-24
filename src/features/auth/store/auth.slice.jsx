@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { login, register, logout, getMe } from "./../api";
+import { login, register, logout, getMe, verifyEmail } from "./../api";
+import { createProject } from "../../project/api";
 import { Roles } from "../../../assets/constants";
 
 const prioritizedRoles = [
@@ -22,6 +23,7 @@ const authSlice = createSlice({
     token: null,
     roles: null,
     role: null,
+    emailVerified: false,
     loading: false,
     error: null,
   },
@@ -78,6 +80,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(getMe.fulfilled, (state, action) => {
+        console.log(action.payload);
         state.loading = false;
         state.token = action.payload.token;
         state.user = action.payload.user.user;
@@ -86,9 +89,22 @@ const authSlice = createSlice({
           prioritizedRoles.find((role) =>
             action.payload.user.role.includes(role)
           ) || Roles.STUDENT;
+        state.project = action.payload.project || null;
         state.isLoggedIn = true;
       })
       .addCase(getMe.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(verifyEmail.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(verifyEmail.fulfilled, (state) => {
+        state.loading = false;
+        state.emailVerified = true;
+      })
+      .addCase(verifyEmail.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -102,10 +118,14 @@ const authSlice = createSlice({
         state.token = null;
         state.role = null;
         state.isLoggedIn = false;
+        state.project = null;
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(createProject.fulfilled, (state, action) => {
+        state.project = action.payload;
       });
   },
 });

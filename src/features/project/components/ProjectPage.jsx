@@ -1,55 +1,13 @@
-import React from "react";
-import { Progress, Table, Avatar, Card, ConfigProvider } from "antd";
+import React, { useEffect, useState } from "react";
+import { Progress, Table, Avatar, Card, ConfigProvider, Tag } from "antd";
 import { UserOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllAssessments } from "../../assessments/api";
+import { getSubmissionByProjectId } from "../../submissions/api";
+import { useNavigate } from "react-router-dom";
 
 const { Column } = Table;
 const { Meta } = Card;
-
-const tableData = [
-  {
-    key: "1",
-    assessment: "Assignment 1",
-    dueDate: "2023-10-19",
-    status: "Submitted",
-  },
-  {
-    key: "2",
-    assessment: "Assignment 2",
-    dueDate: "2023-10-19",
-    status: "Not Submitted",
-  },
-  {
-    key: "3",
-    assessment: "Assignment 3",
-    dueDate: "2023-10-19",
-    status: "Submitted",
-  },
-  {
-    key: "4",
-    assessment: "Assignment 4",
-    dueDate: "2023-10-19",
-    status: "Not Submitted",
-  },
-];
-
-const columns = [
-  {
-    title: "Assessment",
-    dataIndex: "assessment",
-    key: "assessment",
-  },
-  {
-    title: "Due Date",
-    dataIndex: "dueDate",
-    key: "dueDate",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
-    key: "status",
-  },
-];
 
 const twoColors = {
   "0%": "#108ee9",
@@ -58,20 +16,90 @@ const twoColors = {
 
 function ProjectPage() {
   const { project } = useSelector((state) => state.auth);
+  const assessment = useSelector((state) => state.assessment);
+  const submissions = useSelector((state) => state.submission);
+  const [percent, setPercent] = useState(0);
+  const [assessments, setAssessments] = useState([]);
 
-  if (!project) {
-    return (
-      <div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
-          Project Not Found
-        </h1>
-      </div>
-    );
-  }
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!project) {
+      navigate("/");
+    }
+    dispatch(getAllAssessments()).then((res) => {
+      setAssessments(res.payload);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!project) {
+      navigate("/");
+    }
+    dispatch(getSubmissionByProjectId(project[0].id));
+  }, [project]);
+
+  useEffect(() => {
+    let z = 0;
+    let y = 0;
+    if (assessment.assessments && submissions?.submissions?.length > 0) {
+      const x = [];
+      assessment.assessments.forEach((assessment) => {
+        z++;
+        submissions?.submissions?.forEach((submission) => {
+          if (submission.assessmentId.id === assessment.id) {
+            x.push({ ...assessment, status: "Submitted" });
+            y++;
+          } else {
+            x.push({ ...assessment, status: "Not Submitted" });
+          }
+        });
+      });
+      setAssessments(x);
+    } else if (submissions?.submissions?.length === 0) {
+      const x = [];
+      assessment.assessments.forEach((assessment) => {
+        z++;
+        x.push({ ...assessment, status: "Not Submitted" });
+      });
+      setAssessments(x);
+    }
+    setPercent(((y / z) * 100).toFixed(0));
+  }, [submissions.submissions, assessment.assessments]);
 
   const projectData = project[0];
   const { member1, member2, member3, member4 } = projectData;
   const members = [member1, member2, member3, member4];
+
+  const columns = [
+    {
+      title: "Assessment",
+      dataIndex: "title",
+      key: "title",
+    },
+    {
+      title: "Due Date",
+      dataIndex: "dueDate",
+      key: "dueDate",
+      render: (text, record) => {
+        return (
+          <span>
+            {new Date(text).toDateString()} -{" "}
+            {new Date(text).toLocaleTimeString()}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => (
+        <Tag color={text === "Submitted" ? "green" : "red"}>{text}</Tag>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -90,7 +118,7 @@ function ProjectPage() {
       </div>
       <div className="text-lg font-semibold mb-4 mt-6">Project progress</div>
       <div className="mb-8 ">
-        <Progress type="circle" percent={90} strokeColor={twoColors} />
+        <Progress type="circle" percent={percent} strokeColor={twoColors} />
       </div>
       <div className="w-full flex mt-16">
         <div className="mb-8  flex-1">
@@ -144,7 +172,11 @@ function ProjectPage() {
             },
           }}
         >
-          <Table columns={columns} dataSource={tableData} />
+          <Table
+            loading={assessment.loading}
+            columns={columns}
+            dataSource={assessments}
+          />
         </ConfigProvider>
       </div>
     </div>

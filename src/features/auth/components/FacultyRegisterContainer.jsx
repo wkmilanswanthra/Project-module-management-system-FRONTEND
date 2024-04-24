@@ -164,6 +164,10 @@ const FacultyRegisterContainer = () => {
                   type: "email",
                   message: "Please enter a valid email address",
                 },
+                {
+                  pattern: /^[a-zA-Z0-9._%+-]+@sliit\.lk$/,
+                  message: "Please enter a valid SLIIT email address",
+                },
               ]}
             >
               <Input prefix={<MailOutlined />} placeholder="Email" />

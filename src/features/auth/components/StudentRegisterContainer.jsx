@@ -208,6 +208,10 @@ const StudentRegisterContainer = () => {
                   type: "email",
                   message: "Please enter a valid email address",
                 },
+                {
+                  pattern: /^[a-zA-Z0-9._%+-]+@my\.sliit\.lk$/,
+                  message: "Please enter a valid SLIIT email address",
+                },
               ]}
             >
               <Input prefix={<MailOutlined />} placeholder="Email" />
@@ -265,7 +269,7 @@ const StudentRegisterContainer = () => {
                   message: "Please enter your registration number",
                 },
                 {
-                  pattern: /^(IT\d{10})$/,
+                  pattern: /^(IT\d{8})$/,
                   message: "Please enter a valid registration number",
                 },
               ]}
@@ -323,12 +327,7 @@ const StudentRegisterContainer = () => {
             >
               {loading ? <Spin className="text-white" /> : "Register"}
             </Button>
-            <Link
-              to="/welcome/login"
-              className="px-2 my-2 w-[50%]  text-center bg-gray-300 text-gray-900 font-bold py-3 rounded-lg hover:bg-white hover:text-gray-900 shadow-sm transition duration-300 ease-in-out"
-            >
-              Cancel
-            </Link>
+            <Link to="/welcome/login">Cancel</Link>
             <div className="text-sm text-gray-500 hover:text-blue-500 mt-4 mb-2">
               <Link to="/welcome/faculty/signup">
                 <span className="font-bold"> Or </span>Sign Up as a faculty

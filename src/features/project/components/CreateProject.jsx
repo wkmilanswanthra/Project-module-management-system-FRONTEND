@@ -1,42 +1,52 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, Navigate } from "react-router-dom";
 import { Form, Input, Select, Button } from "antd";
+import { useSelector, useDispatch } from "react-redux";
+import { createProject } from "../api";
+import { getAllFacultyMembers } from "./../../faculty/api/index";
+import { getAllStudents } from "../../students/api";
+import { openNotificationWithIcon } from "./../../../util/notifications";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
-const supervisors = [
-  {
-    id: 1,
-    name: "John Doe",
-  },
-  {
-    id: 2,
-    name: "Jane Doe",
-  },
-];
-
-const mem = [
-  {
-    id: 1,
-    name: "John Doe",
-  },
-  {
-    id: 2,
-    name: "Jane Doe",
-  },
-  {
-    id: 3,
-    name: "John Doe1",
-  },
-  {
-    id: 4,
-    name: "Jane Doe1",
-  },
-];
-
 const CreateProject = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const { members } = useSelector((state) => state.faculty);
+  const { loading, error } = useSelector((state) => state.project);
+  const { students } = useSelector((state) => state.students);
+  const { user } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getAllFacultyMembers());
+    dispatch(getAllStudents());
+  }, []);
+
+  const handleSubmit = (values) => {
+    console.log(values);
+    if (!user.isVerified) {
+      openNotificationWithIcon(
+        "error",
+        "Error",
+        "Please verify your email to create a project"
+      );
+      return;
+    }
+    values.member1Id = user.id;
+    dispatch(createProject(values)).then((res) => {
+      if (!res.error) {
+        openNotificationWithIcon(
+          "success",
+          "Project Created",
+          "Project has been created successfully"
+        );
+        navigate("/");
+      } else {
+        openNotificationWithIcon("error", "Error", res.payload.message);
+      }
+    });
   };
 
   return (
@@ -65,7 +75,7 @@ const CreateProject = () => {
           <div className="col-span-2">
             <Form.Item
               label="Project Title"
-              name="projectTitle"
+              name="title"
               rules={[
                 { required: true, message: "Please enter project title" },
               ]}
@@ -116,11 +126,14 @@ const CreateProject = () => {
               ]}
             >
               <Select placeholder="Select supervisor">
-                {supervisors.map((supervisor) => (
-                  <Option key={supervisor.id} value={supervisor.id}>
-                    {supervisor.name}
-                  </Option>
-                ))}
+                {members.map((supervisor) => {
+                  if (supervisor.role.includes("SUPERVISOR"))
+                    return (
+                      <Option key={supervisor.id} value={supervisor.id}>
+                        {supervisor.name}
+                      </Option>
+                    );
+                })}
               </Select>
             </Form.Item>
             <Form.Item
@@ -142,11 +155,14 @@ const CreateProject = () => {
               ]}
             >
               <Select placeholder="Select co-supervisor">
-                {supervisors.map((supervisor) => (
-                  <Option key={supervisor.id} value={supervisor.id}>
-                    {supervisor.name}
-                  </Option>
-                ))}
+                {members.map((supervisor) => {
+                  if (supervisor.role.includes("CO_SUPERVISOR"))
+                    return (
+                      <Option key={supervisor.id} value={supervisor.id}>
+                        {supervisor.name}
+                      </Option>
+                    );
+                })}
               </Select>
             </Form.Item>
             <div
@@ -158,20 +174,24 @@ const CreateProject = () => {
             >
               <div className="relative grid grid-cols-2 gap-1 mt-8">
                 <Form.Item label="Leader" name="leader">
-                  <Select disabled={true} placeholder="Me"></Select>
+                  <Select disabled={true} placeholder={user.name}>
+                    <Option key={user.id} value={user.id}>
+                      {user.name}
+                    </Option>
+                  </Select>
                 </Form.Item>
                 <Form.Item
                   label="Member 2"
-                  name="member2"
-                  dependencies={["member3", "member4"]}
+                  name="member2Id"
+                  dependencies={["member3Id", "member4Id"]}
                   rules={[
                     { required: true, message: "Please select a member" },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (
                           !value ||
-                          (getFieldValue("member3") !== value) &
-                            (getFieldValue("member4") !== value)
+                          (getFieldValue("member3Id") !== value) &
+                            (getFieldValue("member4Id") !== value)
                         ) {
                           return Promise.resolve();
                         }
@@ -183,25 +203,28 @@ const CreateProject = () => {
                   ]}
                 >
                   <Select placeholder="Select member 2">
-                    {mem.map((member) => (
-                      <Option key={member.id} value={member.id}>
-                        {member.name}
-                      </Option>
-                    ))}
+                    {students.map((member) => {
+                      if (member.id !== user.id)
+                        return (
+                          <Option key={member.id} value={member.id}>
+                            {member.name}
+                          </Option>
+                        );
+                    })}
                   </Select>
                 </Form.Item>
                 <Form.Item
                   label="Member 3"
-                  name="member3"
-                  dependencies={["member2", "member4"]}
+                  name="member3Id"
+                  dependencies={["member2Id", "member4Id"]}
                   rules={[
                     { required: true, message: "Please select a member" },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (
                           !value ||
-                          (getFieldValue("member2") !== value) &
-                            (getFieldValue("member4") !== value)
+                          (getFieldValue("member2Id") !== value) &
+                            (getFieldValue("member4Id") !== value)
                         ) {
                           return Promise.resolve();
                         }
@@ -213,25 +236,28 @@ const CreateProject = () => {
                   ]}
                 >
                   <Select placeholder="Select member 3">
-                    {mem.map((member) => (
-                      <Option key={member.id} value={member.id}>
-                        {member.name}
-                      </Option>
-                    ))}
+                    {students.map((member) => {
+                      if (member.id !== user.id)
+                        return (
+                          <Option key={member.id} value={member.id}>
+                            {member.name}
+                          </Option>
+                        );
+                    })}
                   </Select>
                 </Form.Item>
                 <Form.Item
                   label="Member 4"
-                  name="member4"
-                  dependencies={["member3", "member2"]}
+                  name="member4Id"
+                  dependencies={["member3Id", "member2Id"]}
                   rules={[
                     { required: true, message: "Please select a member" },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
                         if (
                           !value ||
-                          (getFieldValue("member2") !== value) &
-                            (getFieldValue("member3") !== value)
+                          (getFieldValue("member2Id") !== value) &
+                            (getFieldValue("member3Id") !== value)
                         ) {
                           return Promise.resolve();
                         }
@@ -243,11 +269,14 @@ const CreateProject = () => {
                   ]}
                 >
                   <Select placeholder="Select member 4">
-                    {mem.map((member) => (
-                      <Option key={member.id} value={member.id}>
-                        {member.name}
-                      </Option>
-                    ))}
+                    {students.map((member) => {
+                      if (member.id !== user.id)
+                        return (
+                          <Option key={member.id} value={member.id}>
+                            {member.name}
+                          </Option>
+                        );
+                    })}
                   </Select>
                 </Form.Item>
               </div>

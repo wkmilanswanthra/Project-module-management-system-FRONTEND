@@ -17,9 +17,11 @@ import {
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
-import { fetchAllSubmissions } from "./../api/index";
+import { fetchAllSubmissions, getSubmission } from "./../api/index";
+import { getMarkingBySubmissionId } from "../../marks/api";
 import { openNotificationWithIcon } from "../../../util/notifications";
 import { useNavigate } from "react-router-dom";
+import ViewSubmissionModal from "../modals/ViewSubmissionModal";
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -27,6 +29,8 @@ const { Search } = Input;
 function SubmissionsContainer() {
   const [searchData, setSearchData] = React.useState([]);
   const { submissions, loading, error } = useSelector((state) => state.faculty);
+
+  const [open, setOpen] = React.useState(false);
 
   const dispatch = useDispatch();
 
@@ -52,7 +56,7 @@ function SubmissionsContainer() {
     const filteredData = submissions.filter((record) => {
       return (
         record.id.toLowerCase().includes(value.toLowerCase()) ||
-        record.projectId.title.toLowerCase().includes(value.toLowerCase()) ||
+        record.project.title.toLowerCase().includes(value.toLowerCase()) ||
         record.assessmentId.title.toLowerCase().includes(value.toLowerCase())
       );
     });
@@ -60,6 +64,12 @@ function SubmissionsContainer() {
   };
 
   const navigate = useNavigate();
+
+  const handleOpen = (id) => {
+    dispatch(getSubmission(id));
+    dispatch(getMarkingBySubmissionId(id));
+    setOpen(true);
+  };
 
   const columns = [
     {
@@ -85,7 +95,7 @@ function SubmissionsContainer() {
         ) : (
           <SortDescendingOutlined />
         ),
-      render: (text, record) => <Text>{record?.projectId?.title}</Text>,
+      render: (text, record) => <Text>{record?.project?.title}</Text>,
     },
     {
       title: "Assessment title",
@@ -126,7 +136,11 @@ function SubmissionsContainer() {
       key: "actions",
       render: (text, record) => (
         <Space size="middle">
-          <Button type="primary" icon={<EyeOutlined />} />
+          <Button
+            type="primary"
+            onClick={() => handleOpen(record.id)}
+            icon={<EyeOutlined />}
+          />
           <Button
             type="primary"
             onClick={() => navigate(`/marks/new/${record.id}`)}
@@ -187,6 +201,7 @@ function SubmissionsContainer() {
           dataSource={searchData}
           pagination={{ pageSize: 15 }}
         />
+        <ViewSubmissionModal open={open} setOpen={setOpen} />
       </div>
     </ConfigProvider>
   );

@@ -8,6 +8,7 @@ import {
   Divider,
   Input,
   Card,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -19,84 +20,13 @@ import {
   PlusOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { getAllProjects } from "../api";
+import { getAllProjects, deleteProject } from "../api";
 import { useDispatch, useSelector } from "react-redux";
 import { openNotificationWithIcon } from "../../../util/notifications";
 import { renderRow } from "../table/ExpandRow";
 
 const { Text } = Typography;
 const { Search } = Input;
-
-const columns = [
-  {
-    title: "Project Title",
-    dataIndex: "title",
-    key: "title",
-    render: (text, record) => (
-      <Space size="middle">
-        <UserOutlined className="mx-4" style={{ fontSize: "22px" }} />
-        <div>
-          <div className="font-bold text-lg">{record.title}</div>
-          <div>{record.researchGroup}</div>
-        </div>
-      </Space>
-    ),
-    sorter: (a, b) => a.title.localeCompare(b.title),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Supervisor",
-    dataIndex: "supervisor",
-    key: "supervisor",
-    render: (text, record) => <Text>{record.supervisor.name}</Text>,
-  },
-  {
-    title: "Co-supervisor",
-    dataIndex: "coSupervisor",
-    key: "coSupervisor",
-    render: (text, record) => <Text>{record.coSupervisor.name}</Text>,
-  },
-  {
-    title: "Member 1 (Leader)",
-    dataIndex: "member1",
-    key: "member1",
-    render: (text, record) => <Text>{record.member1.name}</Text>,
-  },
-  {
-    title: "Member 2",
-    dataIndex: "member2",
-    key: "member2",
-    render: (text, record) => <Text>{record.member2.name}</Text>,
-  },
-  {
-    title: "Member 3",
-    dataIndex: "member3",
-    key: "member3",
-    render: (text, record) => <Text>{record.member3.name}</Text>,
-  },
-  {
-    title: "Member 4",
-    dataIndex: "member4",
-    key: "member4",
-    render: (text, record) => <Text>{record.member4.name}</Text>,
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<EyeOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    align: "center",
-  },
-];
 
 function ProjectsContainer() {
   const [searchData, setSearchdata] = React.useState([]);
@@ -169,6 +99,95 @@ function ProjectsContainer() {
     });
     setSearchdata(filteredData);
   };
+
+  const handleDelete = (id) => {
+    dispatch(deleteProject(id)).then((res) => {
+      if (res.payload) {
+        openNotificationWithIcon("success", "Success", "Project deleted");
+        fetchAllProjects();
+      } else {
+        openNotificationWithIcon("error", "Error", "Failed to delete project");
+      }
+    });
+  };
+
+  const columns = [
+    {
+      title: "Project Title",
+      dataIndex: "title",
+      key: "title",
+      render: (text, record) => (
+        <Space size="middle">
+          <UserOutlined className="mx-4" style={{ fontSize: "22px" }} />
+          <div>
+            <div className="font-bold text-lg">{record.title}</div>
+            <div>{record.researchGroup}</div>
+          </div>
+        </Space>
+      ),
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Supervisor",
+      dataIndex: "supervisor",
+      key: "supervisor",
+      render: (text, record) => <Text>{record.supervisor.name}</Text>,
+    },
+    {
+      title: "Co-supervisor",
+      dataIndex: "coSupervisor",
+      key: "coSupervisor",
+      render: (text, record) => <Text>{record.coSupervisor.name}</Text>,
+    },
+    {
+      title: "Member 1 (Leader)",
+      dataIndex: "member1",
+      key: "member1",
+      render: (text, record) => <Text>{record.member1.name}</Text>,
+    },
+    {
+      title: "Member 2",
+      dataIndex: "member2",
+      key: "member2",
+      render: (text, record) => <Text>{record.member2.name}</Text>,
+    },
+    {
+      title: "Member 3",
+      dataIndex: "member3",
+      key: "member3",
+      render: (text, record) => <Text>{record.member3.name}</Text>,
+    },
+    {
+      title: "Member 4",
+      dataIndex: "member4",
+      key: "member4",
+      render: (text, record) => <Text>{record.member4.name}</Text>,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <Space size="middle">
+          <Popconfirm
+            title="Delete the project"
+            description="Are you sure to delete this project?"
+            onConfirm={handleDelete.bind(this, record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="danger" icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      align: "center",
+    },
+  ];
   return (
     <ConfigProvider
       theme={{

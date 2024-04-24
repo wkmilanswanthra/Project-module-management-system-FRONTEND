@@ -69,177 +69,182 @@ export const authRoutes = [
   },
 ];
 
-const routes = [
-  {
-    path: "",
-    element: <Dashboard />,
-    allowedRoles: [
-      Roles.PROJECT_COORDINATOR,
-      Roles.MEMBER,
-      Roles.EXAMINER,
-      Roles.SUPERVISOR,
-      Roles.CO_SUPERVISOR,
-      Roles.STAFF,
-    ],
-    childRoutes: [
-      {
-        path: "students",
-        element: <StudentsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
-      },
-      {
-        path: "faculty",
-        element: <FacultyContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
-      },
-      {
-        path: "",
-        element: <FacultyContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
-      },
-      {
-        path: "projects",
-        element: <ProjectsContainer />,
-        allowedRoles: [
-          Roles.PROJECT_COORDINATOR,
-          Roles.SUPERVISOR,
-          Roles.CO_SUPERVISOR,
-        ],
-      },
-      {
-        path: "assessments",
-        element: <AssessmentsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "submissions",
-        element: <SubmissionsContainer />,
-        allowedRoles: [
-          Roles.PROJECT_COORDINATOR,
-          Roles.EXAMINER,
-          Roles.SUPERVISOR,
-          Roles.CO_SUPERVISOR,
-        ],
-      },
-      {
-        path: "marksheets",
-        element: <MarksheetsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
-      },
-      {
-        path: "semesters",
-        element: <SemesterContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
-      },
-      {
-        path: "rubrics",
-        element: <RubricsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "groups",
-        element: <GroupsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR],
-      },
-      {
-        path: "assessments/create",
-        element: <CreateAssessmentContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "assessments/edit/*",
-        element: <EditAssessmentContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "rubrics/create",
-        element: <CreateRubricsContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "schedule",
-        element: <ScheduleContainer />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "schedule/create",
-        element: <CreateSchedule />,
-        allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
-      },
-      {
-        path: "marks/new/:id",
-        element: <NewMarking />,
-        allowedRoles: [
-          Roles.PROJECT_COORDINATOR,
-          Roles.EXAMINER,
-          Roles.SUPERVISOR,
-          Roles.CO_SUPERVISOR,
-        ],
-      },
-      {
-        path: "marks/update/:id",
-        element: <NewMarking />,
-        allowedRoles: [
-          Roles.PROJECT_COORDINATOR,
-          Roles.EXAMINER,
-          Roles.SUPERVISOR,
-          Roles.CO_SUPERVISOR,
-        ],
-      },
-    ],
-  },
-  {
-    path: "",
-    element: <StudentsDashboard />,
-    allowedRoles: [Roles.STUDENT],
-    childRoutes: [
-      {
-        path: "",
-        element: <Welcome />,
-        allowedRoles: [Roles.STUDENT],
-      },
-      {
-        path: "create-project",
-        element: <CreateProject />,
-        allowedRoles: [Roles.STUDENT],
-      },
-    ],
-  },
-];
-
-const hasProjectPaths = [
-  {
-    path: "",
-    element: <ProjectPage />,
-    allowedRoles: [Roles.STUDENT],
-  },
-  {
-    path: "assessments",
-    element: <AssessmentList />,
-    allowedRoles: [Roles.STUDENT],
-  },
-  {
-    path: "assessment/*",
-    element: <AssessmentContainer />,
-    allowedRoles: [Roles.STUDENT],
-  },
-  {
-    path: "publications",
-    element: <PublicationPage />,
-    allowedRoles: [Roles.STUDENT],
-  },
-  {
-    path: "add-publication",
-    element: <AddPublication />,
-    allowedRoles: [Roles.STUDENT],
-  },
-];
-
 export const getRoutes = (hasProject) => {
+  const routes = [
+    {
+      path: "",
+      element: <Dashboard />,
+      allowedRoles: [
+        Roles.PROJECT_COORDINATOR,
+        Roles.MEMBER,
+        Roles.EXAMINER,
+        Roles.SUPERVISOR,
+        Roles.CO_SUPERVISOR,
+        Roles.STAFF,
+      ],
+      childRoutes: [
+        {
+          path: "students",
+          element: <StudentsContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR],
+        },
+        {
+          path: "faculty",
+          element: <FacultyContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR],
+        },
+        {
+          path: "",
+          element: <FacultyContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR],
+        },
+        {
+          path: "projects",
+          element: <ProjectsContainer />,
+          allowedRoles: [
+            Roles.PROJECT_COORDINATOR,
+            Roles.SUPERVISOR,
+            Roles.CO_SUPERVISOR,
+          ],
+        },
+        {
+          path: "assessments",
+          element: <AssessmentsContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "submissions",
+          element: <SubmissionsContainer />,
+          allowedRoles: [
+            Roles.PROJECT_COORDINATOR,
+            Roles.EXAMINER,
+            Roles.SUPERVISOR,
+            Roles.CO_SUPERVISOR,
+          ],
+        },
+        {
+          path: "marksheets",
+          element: <MarksheetsContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR],
+        },
+        {
+          path: "semesters",
+          element: <SemesterContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR],
+        },
+        {
+          path: "rubrics",
+          element: <RubricsContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "groups",
+          element: <GroupsContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR],
+        },
+        {
+          path: "assessments/create",
+          element: <CreateAssessmentContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "assessments/edit/*",
+          element: <EditAssessmentContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "rubrics/create",
+          element: <CreateRubricsContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "schedule",
+          element: <ScheduleContainer />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "schedule/create",
+          element: <CreateSchedule />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "schedule/edit/:id",
+          element: <CreateSchedule />,
+          allowedRoles: [Roles.PROJECT_COORDINATOR, Roles.MEMBER],
+        },
+        {
+          path: "marks/new/:id",
+          element: <NewMarking />,
+          allowedRoles: [
+            Roles.PROJECT_COORDINATOR,
+            Roles.EXAMINER,
+            Roles.SUPERVISOR,
+            Roles.CO_SUPERVISOR,
+          ],
+        },
+        {
+          path: "marks/update/:id",
+          element: <NewMarking />,
+          allowedRoles: [
+            Roles.PROJECT_COORDINATOR,
+            Roles.EXAMINER,
+            Roles.SUPERVISOR,
+            Roles.CO_SUPERVISOR,
+          ],
+        },
+      ],
+    },
+    {
+      path: "",
+      element: <StudentsDashboard />,
+      allowedRoles: [Roles.STUDENT],
+      childRoutes: [
+        {
+          path: "",
+          element: <Welcome project={hasProject} />,
+          allowedRoles: [Roles.STUDENT],
+        },
+        {
+          path: "create-project",
+          element: <CreateProject />,
+          allowedRoles: [Roles.STUDENT],
+        },
+      ],
+    },
+  ];
+
+  const hasProjectPaths = [
+    {
+      path: "",
+      element: <ProjectPage />,
+      allowedRoles: [Roles.STUDENT],
+    },
+    {
+      path: "assessments",
+      element: <AssessmentList />,
+      allowedRoles: [Roles.STUDENT],
+    },
+    {
+      path: "assessment/:id",
+      element: <AssessmentContainer />,
+      allowedRoles: [Roles.STUDENT],
+    },
+    {
+      path: "publications",
+      element: <PublicationPage />,
+      allowedRoles: [Roles.STUDENT],
+    },
+    {
+      path: "add-publication",
+      element: <AddPublication />,
+      allowedRoles: [Roles.STUDENT],
+    },
+  ];
   if (hasProject) {
     routes[1].childRoutes = hasProjectPaths;
   }
+  console.log(hasProject);
+  console.log(routes);
   return routes;
 };
-
 // export default routes;

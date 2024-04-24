@@ -1,46 +1,153 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Divider, Form, Input, Select, Button } from "antd";
+import { getAllFacultyMembers } from "../../faculty/api/index.jsx";
+import { getAllAssessments } from "./../../assessments/api/index";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createSchedule,
+  updateSchedule,
+  getScheduleById,
+} from "../api/index.jsx";
+import { openNotificationWithIcon } from "../../../util/notifications.jsx";
+import { getAllProjects } from "../../project/api/index.jsx";
+import { useNavigate, useParams } from "react-router-dom";
 
 const { Option } = Select;
 
-const Assessments = [
-  {
-    id: 1,
-    title: "Assessment 1",
-  },
-  {
-    id: 2,
-    title: "Assessment 2",
-  },
-];
-
-const Examiners = [
-  {
-    id: 1,
-    name: "Examiner 1",
-  },
-  {
-    id: 2,
-    name: "Examiner 2",
-  },
-  {
-    id: 3,
-    name: "Examiner 3",
-  },
-  {
-    id: 4,
-    name: "Examiner 4",
-  },
-  {
-    id: 5,
-    name: "Examiner 5",
-  },
-];
-
 const CreateSchedule = () => {
+  const [facultyMembers, setFacultyMembers] = useState([]);
+  const [assessmentsList, setAssessmentsList] = useState([]);
+  const [projectList, setProjectList] = useState([]);
+  const [isUpdate, setIsUpdate] = useState(false);
+
+  const { members } = useSelector((state) => state.faculty);
+  const { assessments } = useSelector((state) => state.assessment);
+  const { projects } = useSelector((state) => state.project);
+  const { schedule } = useSelector((state) => state.schedule);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
+
+  const { id } = useParams();
+
+  useEffect(() => {
+    dispatch(getAllFacultyMembers());
+
+    dispatch(getAllAssessments());
+
+    dispatch(getAllProjects());
+    if (id) {
+      setIsUpdate(true);
+      dispatch(getScheduleById(id));
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (schedule) {
+      const {
+        date,
+        location,
+        startTime,
+        endTime,
+        assessmentId,
+        projectId,
+        examiner1Id,
+        examiner2Id,
+        examiner3Id,
+      } = schedule;
+      form.setFieldsValue({
+        date,
+        location,
+        startTime,
+        endTime,
+        assessmentId,
+        projectId,
+        examiner1Id,
+        examiner2Id,
+        examiner3Id,
+      });
+    }
+  }, [schedule]);
+  useEffect(() => {
+    if (assessments.length > 0) {
+      const x = assessments.filter((assessment) => {
+        if (assessment?.assessmentType === "Presentation") {
+          return {
+            id: assessment?.id,
+            title: assessment?.title,
+          };
+        }
+      });
+      setAssessmentsList(x);
+    }
+  }, [assessments]);
+
+  useEffect(() => {
+    if (members.length > 0) {
+      const x = members.filter((member) => {
+        if (member?.role.includes("EXAMINER")) {
+          return {
+            id: member?.id,
+            name: member?.name,
+          };
+        }
+      });
+      setFacultyMembers(x);
+    }
+  }, [members]);
+
+  useEffect(() => {
+    if (projects.length > 0) {
+      const x = projects.filter((project) => {
+        return {
+          id: project?.id,
+          title: project?.title,
+        };
+      });
+      setProjectList(x);
+    }
+  }, [projects]);
+
   const onFinish = (values) => {
     console.log("Form values:", values);
+    values.id = id;
+    if (isUpdate) {
+      dispatch(updateSchedule(values))
+        .then((res) => {
+          if (res) {
+            openNotificationWithIcon(
+              "success",
+              "Done",
+              "Schedule updated successfully"
+            );
+            navigate("/schedule");
+          } else {
+            openNotificationWithIcon("error", "Error", "Something went wrong");
+          }
+        })
+        .catch((error) => {
+          openNotificationWithIcon("error", "Error", error.message);
+        });
+      return;
+    }
+    dispatch(createSchedule(values))
+      .then((res) => {
+        if (res) {
+          openNotificationWithIcon(
+            "success",
+            "Done",
+            "Schedule created successfully"
+          );
+          navigate("/schedule");
+        } else {
+          openNotificationWithIcon("error", "Error", "Something went wrong");
+        }
+      })
+      .catch((error) => {
+        openNotificationWithIcon("error", "Error", error.message);
+      });
   };
 
   return (
@@ -50,6 +157,7 @@ const CreateSchedule = () => {
       </h1>
       <Divider />
       <Form
+        form={form}
         name="scheduleForm"
         onFinish={onFinish}
         className="w-full max-w-md md:max-w-3xl grid grid-cols-2 gap-4"
@@ -88,27 +196,42 @@ const CreateSchedule = () => {
         </Form.Item>
         <Form.Item
           label="End Time"
-          name="endTtime"
+          name="endTime"
           rules={[{ required: true, message: "Please select a end time!" }]}
         >
           <Input type="time" />
         </Form.Item>
         <Form.Item
           label="Assessment"
-          name="assessment"
+          name="assessmentId"
           rules={[{ required: true, message: "Please select an assessment!" }]}
         >
           <Select placeholder="Select an assessment">
-            {Assessments.map((assessment) => (
-              <Option key={assessment.id} value={assessment.title}>
-                {assessment.title}
+            {assessmentsList?.map((assessment) => (
+              <Option key={assessment?.id} value={assessment?.id}>
+                {assessment?.title}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label="Project Group"
+          name="projectId"
+          rules={[
+            { required: true, message: "Please select a project group!" },
+          ]}
+        >
+          <Select placeholder="Select a project group">
+            {projectList?.map((project) => (
+              <Option key={project?.id} value={project?.id}>
+                {project?.title} - {project?.id}
               </Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item
           label="Examiner 1"
-          name="examiner1"
+          name="examiner1Id"
           dependencies={["examiner2", "examiner3"]}
           rules={[
             { required: true, message: "Please select an examiner!" },
@@ -127,16 +250,16 @@ const CreateSchedule = () => {
           ]}
         >
           <Select placeholder="Select an examiner">
-            {Examiners.map((examiner) => (
-              <Option key={examiner.id} value={examiner.name}>
-                {examiner.name}
+            {facultyMembers.map((examiner) => (
+              <Option key={examiner?.id} value={examiner?.id}>
+                {examiner?.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item
           label="Examiner 2"
-          name="examiner2"
+          name="examiner2Id"
           dependencies={["examiner1", "examiner3"]}
           rules={[
             { required: true, message: "Please select an examiner!" },
@@ -155,16 +278,16 @@ const CreateSchedule = () => {
           ]}
         >
           <Select placeholder="Select an examiner">
-            {Examiners.map((examiner) => (
-              <Option key={examiner.id} value={examiner.name}>
-                {examiner.name}
+            {facultyMembers.map((examiner) => (
+              <Option key={examiner?.id} value={examiner?.id}>
+                {examiner?.name}
               </Option>
             ))}
           </Select>
         </Form.Item>
         <Form.Item
           label="Examiner 3"
-          name="examiner3"
+          name="examiner3Id"
           dependencies={["examiner2", "examiner1"]}
           rules={[
             { required: true, message: "Please select an examiner!" },
@@ -183,9 +306,9 @@ const CreateSchedule = () => {
           ]}
         >
           <Select placeholder="Select an examiner">
-            {Examiners.map((examiner) => (
-              <Option key={examiner.id} value={examiner.name}>
-                {examiner.name}
+            {facultyMembers.map((examiner) => (
+              <Option key={examiner?.id} value={examiner?.id}>
+                {examiner?.name}
               </Option>
             ))}
           </Select>

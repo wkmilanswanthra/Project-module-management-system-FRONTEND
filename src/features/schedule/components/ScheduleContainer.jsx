@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   Divider,
   Input,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -15,168 +16,219 @@ import {
   SortAscendingOutlined,
   SortDescendingOutlined,
 } from "@ant-design/icons";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllSchedules, deleteSchedule } from "../api";
+import { openNotificationWithIcon } from "../../../util/notifications";
+import { useNavigate } from "react-router-dom";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Date",
-    dataIndex: "date",
-    key: "date",
-    sorter: (a, b) => a.date.localeCompare(b.date),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Start Time",
-    dataIndex: "startTime",
-    key: "startTime",
-    sorter: (a, b) => a.startTime.localeCompare(b.startTime),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "End Time",
-    dataIndex: "endTime",
-    key: "endTime",
-    sorter: (a, b) => a.endTime.localeCompare(b.endTime),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Location",
-    dataIndex: "location",
-    key: "location",
-    sorter: (a, b) => a.location.localeCompare(b.location),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-  },
-  {
-    title: "Assessment Id",
-    dataIndex: "assessmentId",
-    key: "assessmentId",
-    sorter: (a, b) => a.assessmentId.localeCompare(b.assessmentId),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Examiner 1",
-    dataIndex: "examiner1",
-    key: "examiner1",
-    sorter: (a, b) => a.examiner1.localeCompare(b.examiner1),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Examiner 2",
-    dataIndex: "examiner2",
-    key: "examiner2",
-    sorter: (a, b) => a.examiner2.localeCompare(b.examiner2),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Examiner 3",
-    dataIndex: "examiner3",
-    key: "examiner3",
-    sorter: (a, b) => a.examiner3.localeCompare(b.examiner3),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<EditOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    align: "center",
-  },
-];
-
-const data = [
-  {
-    key: "1",
-    date: "2024-03-20",
-    startTime: "09:00 AM",
-    endTime: "12:00 PM",
-    location: "Hall A",
-    assessmentId: "ASS123",
-    examiner1: "Examiner 1",
-    examiner2: "Examiner 2",
-    examiner3: "Examiner 3",
-  },
-  {
-    key: "2",
-    date: "2024-03-21",
-    startTime: "10:30 AM",
-    endTime: "01:30 PM",
-    location: "Hall B",
-    assessmentId: "ASS456",
-    examiner1: "Examiner 4",
-    examiner2: "Examiner 5",
-    examiner3: "Examiner 6",
-  },
-];
-
 function ScheduleContainer() {
   const [searchData, setSearchData] = React.useState([]);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const schedules = useSelector((state) => state.schedule);
+
   useEffect(() => {
-    setSearchData(data);
+    getData();
   }, []);
 
+  const getData = async () => {
+    dispatch(getAllSchedules()).then((res) => {
+      setSearchData(res.payload);
+    });
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteSchedule(id)).then((res) => {
+      if (res.payload) {
+        openNotificationWithIcon(
+          "success",
+          "Deleted!",
+          "Schedule deleted successfully"
+        );
+        getData();
+      } else {
+        openNotificationWithIcon(
+          "error",
+          "Error!",
+          "Failed to delete schedule"
+        );
+      }
+    });
+  };
+
+  const columns = [
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      sorter: (a, b) => a.date.localeCompare(b.date),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Start Time",
+      dataIndex: "startTime",
+      key: "startTime",
+      sorter: (a, b) => a.startTime.localeCompare(b.startTime),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "End Time",
+      dataIndex: "endTime",
+      key: "endTime",
+      sorter: (a, b) => a.endTime.localeCompare(b.endTime),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Location",
+      dataIndex: "location",
+      key: "location",
+      sorter: (a, b) => a.location.localeCompare(b.location),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+    },
+    {
+      title: "Assessment Title",
+      dataIndex: "assessment",
+      key: "assessment",
+      render: (text, record) => <Text>{record.assessment.title}</Text>,
+      sorter: (a, b) => a.assessment.title.localeCompare(b.assessment.title),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Project Group",
+      dataIndex: "project",
+      key: "project",
+      render: (text, record) => <Text>{record.project.title}</Text>,
+      sorter: (a, b) => a.project.title.localeCompare(b.project.title),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Examiner 1",
+      dataIndex: "examiner1",
+      key: "examiner1",
+      render: (text, record) => (
+        <Text>{record.examiner1 ? record.examiner1.name : ""}</Text>
+      ),
+      sorter: (a, b) => a.examiner1.name.localeCompare(b.examiner1.name),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Examiner 2",
+      dataIndex: "examiner2",
+      key: "examiner2",
+      render: (text, record) => (
+        <Text>{record.examiner2 ? record.examiner2.name : ""}</Text>
+      ),
+      sorter: (a, b) => a.examiner2.name.localeCompare(b.examiner2.name),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Examiner 3",
+      dataIndex: "examiner3",
+      key: "examiner3",
+      render: (text, record) => (
+        <Text>{record.examiner3 ? record.examiner3.name : ""}</Text>
+      ),
+      sorter: (a, b) => a.examiner3.name.localeCompare(b.examiner3.name),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            onClick={() => navigate(`edit/${record.id}`)}
+            type="primary"
+            icon={<EditOutlined />}
+          />
+          <Popconfirm
+            title="Delete the scheduled item?"
+            description="Are you sure to delete this scheduled item?"
+            onConfirm={handleDelete.bind(this, record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="danger" icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      align: "center",
+    },
+  ];
+
   const onSearch = (value) => {
-    const filteredData = data.filter((record) => {
+    const filteredData = searchData.filter((record) => {
       return (
         record.date.toLowerCase().includes(value.toLowerCase()) ||
-        record.assessmentId.toLowerCase().includes(value.toLowerCase()) ||
-        record.examiner1.toLowerCase().includes(value.toLowerCase()) ||
-        record.examiner2.toLowerCase().includes(value.toLowerCase()) ||
-        record.examiner3.toLowerCase().includes(value.toLowerCase())
+        record.assessment.title.toLowerCase().includes(value.toLowerCase()) ||
+        record.project.title.toLowerCase().includes(value.toLowerCase()) ||
+        record.examiner1.name.toLowerCase().includes(value.toLowerCase()) ||
+        record.examiner2.name.toLowerCase().includes(value.toLowerCase()) ||
+        record.examiner3.name.toLowerCase().includes(value.toLowerCase())
       );
     });
     setSearchData(filteredData);
+  };
+
+  const reset = (e) => {
+    if (!e || e.target.value === "") {
+      setSearchData(schedules.schedules);
+    }
   };
 
   return (
@@ -207,9 +259,11 @@ function ScheduleContainer() {
             onSearch={onSearch}
             style={{ width: 200, marginRight: 8 }}
             allowClear
+            onChange={reset}
           />
         </div>
         <Table
+          loading={schedules.loading}
           className="mt-8"
           columns={columns}
           dataSource={searchData}

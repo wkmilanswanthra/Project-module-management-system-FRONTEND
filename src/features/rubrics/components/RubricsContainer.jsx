@@ -7,6 +7,7 @@ import {
   ConfigProvider,
   Divider,
   Input,
+  Popconfirm,
 } from "antd";
 import {
   EditOutlined,
@@ -18,89 +19,122 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { fetchAllRubrics, deleteRubric } from "../api";
+import { useSelector, useDispatch } from "react-redux";
+import RubricViewModal from "./../modals/RubricViewModal";
 
 const { Text } = Typography;
 const { Search } = Input;
 
-const columns = [
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-    sorter: (a, b) => a.id.localeCompare(b.id),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Assessment",
-    dataIndex: "assessment",
-    key: "assessment",
-    render: (text, record) => (
-      <Space size="middle">
-        <div>
-          <div className="font-bold text-lg">{record.title}</div>
-          <div>{`${record.assessmentId} - ${record.type}`}</div>
-        </div>
-      </Space>
-    ),
-    sorter: (a, b) => a.title.localeCompare(b.title),
-    sortIcon: ({ sortOrder }) =>
-      sortOrder === "ascend" ? (
-        <SortAscendingOutlined />
-      ) : (
-        <SortDescendingOutlined />
-      ),
-    filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
-  },
-  {
-    title: "Actions",
-    key: "actions",
-    render: () => (
-      <Space size="middle">
-        <Button type="primary" icon={<EyeOutlined />} />
-        <Button type="primary" icon={<EditOutlined />} />
-        <Button type="danger" icon={<DeleteOutlined />} />
-      </Space>
-    ),
-    align: "center",
-  },
-];
-
-const data = [
-  {
-    key: "1",
-    id: "RUB001",
-    title: "Assessment 1",
-    assessmentId: "ASS001",
-    type: "Presentation",
-  },
-  {
-    key: "2",
-    id: "RUB002",
-    title: "Assessment 2",
-    assessmentId: "ASS002",
-    type: "Report",
-  },
-];
-
 function RubricsContainer() {
   const [searchData, setSearchData] = React.useState([]);
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [viewRubric, setViewRubric] = React.useState({});
+
+  const { rubrics } = useSelector((state) => state.rubric);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    setSearchData(data);
+    getData();
   }, []);
 
+  function getData() {
+    dispatch(fetchAllRubrics()).then((res) => {
+      if (res.payload) {
+        setSearchData(res.payload);
+      }
+    });
+  }
+
+  const onClose = () => {
+    setModalVisible(false);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteRubric(id)).then((res) => {
+      if (res.payload) {
+        openNotificationWithIcon(
+          "success",
+          "Deleted",
+          "Rubric Deleted Successfully"
+        );
+        getData();
+      } else {
+        openNotificationWithIcon("error", "Error", res.error.message);
+      }
+    });
+  };
+
+  const columns = [
+    {
+      title: "Id",
+      dataIndex: "id",
+      key: "id",
+      sorter: (a, b) => a.id.localeCompare(b.id),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Assessment",
+      dataIndex: "assessment",
+      key: "assessment",
+      render: (text, record) => (
+        <Space size="middle">
+          <div>
+            <div className="font-bold text-lg">{record.assessment.title}</div>
+            <div>{`${record.assessment.id} - ${record.assessment.assessmentType}`}</div>
+          </div>
+        </Space>
+      ),
+      sorter: (a, b) => a.title.localeCompare(b.title),
+      sortIcon: ({ sortOrder }) =>
+        sortOrder === "ascend" ? (
+          <SortAscendingOutlined />
+        ) : (
+          <SortDescendingOutlined />
+        ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            type="primary"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              setViewRubric(record);
+              setModalVisible(true);
+            }}
+          />
+          <Popconfirm
+            title="Delete the Rubric"
+            description="Are you sure to delete this rubric?"
+            onConfirm={handleDelete.bind(this, record.id)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="danger" icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      align: "center",
+    },
+  ];
+
   const onSearch = (value) => {
-    const filteredData = data.filter((record) => {
+    const filteredData = rubrics.filter((record) => {
       return (
-        record.id.toLowerCase().includes(value.toLowerCase()) ||
-        record.title.toLowerCase().includes(value.toLowerCase())
+        record.id.toString().includes(value.toLowerCase()) ||
+        record.assessment.title.toLowerCase().includes(value.toLowerCase())
       );
     });
     setSearchData(filteredData);
@@ -134,7 +168,7 @@ function RubricsContainer() {
             onSearch={onSearch}
             onChange={(e) => {
               if (e.target.value === "") {
-                setSearchData(data);
+                setSearchData(rubrics);
               }
             }}
             style={{
@@ -147,6 +181,11 @@ function RubricsContainer() {
             Create Rubric
           </Button>
         </div>
+        <RubricViewModal
+          visible={modalVisible}
+          onClose={onClose}
+          rubricData={viewRubric}
+        />
         <Table
           className="mt-8"
           columns={columns}

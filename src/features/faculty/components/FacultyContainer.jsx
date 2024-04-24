@@ -21,6 +21,7 @@ import {
   SortDescendingOutlined,
   SearchOutlined,
   PlusOutlined,
+  MailOutlined,
 } from "@ant-design/icons";
 import { Roles } from "../../../assets/constants";
 import { openNotificationWithIcon } from "../../../util/notifications";
@@ -33,6 +34,7 @@ import {
   deleteFacultyMember,
 } from "../api";
 import AddRolesModal from "../modals/AddRolesModal";
+import { updateFacultyMember, resendVerificationEmail } from "../api";
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -45,12 +47,13 @@ function FacultyContainer() {
   const [searchData, setSearchdata] = React.useState([]);
   const [open, setOpen] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [modalText, setModalText] = useState("Content of the modal");
   const { members, loading, error } = useSelector((state) => state.faculty);
   const { user, roles } = useSelector((state) => state.auth);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [selectedId, setSelectedId] = useState("");
   const [rolesModalOpen, setRolesModalOpen] = useState(false);
+  const [selecetedUser, setSelectedUser] = useState({});
+  const [isUpdate, setIsUpdate] = useState(false);
   const dispatch = useDispatch();
 
   const [form] = Form.useForm();
@@ -82,6 +85,13 @@ function FacultyContainer() {
       openNotificationWithIcon(
         "error",
         "Lecturers, Assistant Lecturers, and Instructors cannot be assigned to supervisor roles."
+      );
+      return;
+    }
+    if (!mem.isVerified) {
+      openNotificationWithIcon(
+        "error",
+        "Unverified faculty members cannot be assigned roles."
       );
       return;
     }
@@ -186,18 +196,56 @@ function FacultyContainer() {
       filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
     },
     {
+      title: "Email Verified",
+      dataIndex: "emailVerified",
+      key: "emailVerified",
+      width: "20%",
+      render: (text, record) => {
+        return record.isVerified ? (
+          <Tag color="blue">Verified</Tag>
+        ) : (
+          <Tag color="red">Not Verified</Tag>
+        );
+      },
+    },
+    {
       title: "Actions",
       width: "20%",
       key: "actions",
       render: (record) => {
         return (
           <Space size="middle">
+            {!record.isVerified && (
+              <Button
+                type="primary"
+                onClick={() => {
+                  dispatch(resendVerificationEmail(record.id))
+                    .then(() => {
+                      openNotificationWithIcon(
+                        "success",
+                        "Verification email sent successfully"
+                      );
+                    })
+                    .catch(() => {
+                      openNotificationWithIcon(
+                        "error",
+                        "Failed to send verification email"
+                      );
+                    });
+                }}
+                icon={<MailOutlined />}
+              />
+            )}
             <Button
               type="primary"
               onClick={() => showRolesModal(record.id, record.role)}
               icon={<PlusCircleOutlined />}
             />
-            <Button type="primary" icon={<EditOutlined />} />
+            <Button
+              type="primary"
+              onClick={() => showEditModal(record)}
+              icon={<EditOutlined />}
+            />
             <Popconfirm
               title="Delete the member"
               description="Are you sure to delete this faculty member?"
@@ -244,32 +292,70 @@ function FacultyContainer() {
     setOpen(true);
   };
 
+  const showEditModal = (record) => {
+    setOpen(true);
+    setSelectedUser(record);
+    setIsUpdate(true);
+  };
+
   const handleOk = () => {
-    form
-      .validateFields()
-      .then(async (values) => {
-        values.student = false;
-        setConfirmLoading(true);
-        console.log("Received values of form: ", values);
-        try {
-          const res = await addFacultyMember(values);
-          setConfirmLoading(false);
-          setOpen(false);
-          form.resetFields();
-          openNotificationWithIcon(
-            "success",
-            "Faculty Member Added Successfully"
-          );
-          getTableData();
-        } catch (e) {
-          throw new Error(e);
-        }
-      })
-      .catch((error) => {
-        console.error("Validation failed:", error);
-        if (!error.errorFields)
-          openNotificationWithIcon("error", "Failed to add faculty member");
-      });
+    if (!isUpdate) {
+      form
+        .validateFields()
+        .then(async (values) => {
+          values.student = false;
+          setConfirmLoading(true);
+          console.log("Received values of form: ", values);
+          try {
+            const res = await addFacultyMember(values);
+            setConfirmLoading(false);
+            setOpen(false);
+            form.resetFields();
+            openNotificationWithIcon(
+              "success",
+              "Faculty Member Added Successfully"
+            );
+            getTableData();
+          } catch (e) {
+            throw new Error(e);
+          }
+        })
+        .catch((error) => {
+          console.error("Validation failed:", error);
+          if (!error.errorFields)
+            openNotificationWithIcon("error", "Failed to add faculty member");
+        });
+    } else {
+      form
+        .validateFields()
+        .then(async (values) => {
+          values.student = false;
+          values.id = selecetedUser.id;
+          setConfirmLoading(true);
+          console.log("Received values of form: ", values);
+          try {
+            const res = await updateFacultyMember(values);
+            setConfirmLoading(false);
+            setOpen(false);
+            form.resetFields();
+            openNotificationWithIcon(
+              "success",
+              "Faculty Member Updated Successfully"
+            );
+            getTableData();
+          } catch (e) {
+            throw new Error(e);
+          }
+        })
+        .catch((error) => {
+          console.error("Validation failed:", error);
+          if (!error.errorFields)
+            openNotificationWithIcon(
+              "error",
+              "Failed to update faculty member"
+            );
+        });
+    }
   };
 
   const handleCancel = () => {
@@ -338,6 +424,8 @@ function FacultyContainer() {
         handleOk={handleOk}
         handleCancel={handleCancel}
         form={form}
+        selecetedUser={selecetedUser}
+        isUpdate={isUpdate}
       />
       <AddRolesModal
         selectedRoles={selectedRoles}

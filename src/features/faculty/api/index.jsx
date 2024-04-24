@@ -33,7 +33,7 @@ export const addFacultyMember = async (values) => {
 
 export const updateFacultyMember = async (values) => {
   try {
-    const response = await api.put("/auth/faculty/update", values);
+    const response = await api.patch(`/auth/${values.id}`, values);
     return response.data;
   } catch (error) {
     throw new Error(error);
@@ -64,6 +64,22 @@ export const deleteFacultyMember = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await api.delete(`auth/${id}`);
+      return response.data;
+    } catch (error) {
+      if (error.response && error.response.data.message) {
+        return rejectWithValue(error.response.data.message);
+      } else {
+        return rejectWithValue(error.message);
+      }
+    }
+  }
+);
+
+export const resendVerificationEmail = createAsyncThunk(
+  "auth/resendVerificationEmail",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await api.get(`auth/email/${id}`);
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {

@@ -28,7 +28,7 @@ const { Search } = Input;
 
 function StudentsContainer() {
   const [searchData, setSearchdata] = React.useState([]);
-  const [selectedStudent, setSelectedStudent] = React.useState(null);
+  const [selectedStudent, setSelectedStudent] = React.useState({});
   const [updateStudentModalOpen, setUpdateStudentModalOpen] =
     React.useState(false);
 
@@ -51,7 +51,7 @@ function StudentsContainer() {
 
   const updateStudentHandleCancel = () => {
     setUpdateStudentModalOpen(false);
-    setSelectedStudent(null);
+    setSelectedStudent({});
   };
 
   const handleDelete = (id) => {

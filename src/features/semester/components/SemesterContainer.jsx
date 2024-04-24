@@ -1,5 +1,8 @@
 import React from "react";
 import { Card, Button, Divider, List } from "antd";
+import { getAllSemesters, updateSemester } from "../api";
+import { useDispatch, useSelector } from "react-redux";
+import { openNotificationWithIcon } from "./../../../util/notifications";
 
 const semester1 = [
   "Proposal Document",
@@ -13,7 +16,44 @@ const semester2 = [
   "Log book",
   "Final thesis",
 ];
+
 function SemesterContainer() {
+  const { semesters } = useSelector((state) => state.semester);
+
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(getAllSemesters());
+  }, []);
+
+  const releaseMarks = (index) => {
+    const y = semesters.filter((x) => x.id === index)[0];
+    const x = { ...y };
+    x.released = true;
+    dispatch(updateSemester(x)).then((res) => {
+      openNotificationWithIcon(
+        "success",
+        "Marks released!",
+        " Marks have been released and can be accessed"
+      );
+      dispatch(getAllSemesters());
+    });
+  };
+
+  const withholdMarks = (index) => {
+    const y = semesters.filter((x) => x.id === index)[0];
+    const x = { ...y };
+    x.released = false;
+    dispatch(updateSemester(x)).then((res) => {
+      openNotificationWithIcon(
+        "success",
+        "Marks withheld!",
+        " Marks have been withheld and canot be accessed"
+      );
+      dispatch(getAllSemesters());
+    });
+  };
+
   return (
     <div>
       <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">Semesters</h1>
@@ -22,7 +62,12 @@ function SemesterContainer() {
         <div className="flex md:flex-row w-full">
           <div className="border w-full flex flex-col mx-8 p-8 rounded-lg border-black h-full">
             <div className="text-5xl font-bold">Semester 1</div>
-            <div className="mt-4 font-semibold text-lg">Status : Released</div>
+            <div className="mt-4 font-semibold text-lg">
+              Status :{" "}
+              {semesters?.filter((x) => x.id === 1)[0]?.released
+                ? "Released"
+                : "Not Released"}
+            </div>
             <div className="mt-6">Assigned assessments:</div>
             <List
               size="small"
@@ -32,17 +77,27 @@ function SemesterContainer() {
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
             <div className="mt-4 self-end place-self-end">
-              <Button className="mr-6" danger>
+              <Button className="mr-6" danger onClick={() => releaseMarks(1)}>
                 Release marks
               </Button>
-              <Button className="" type="text" danger>
+              <Button
+                className=""
+                type="text"
+                danger
+                onClick={() => withholdMarks(1)}
+              >
                 Withdraw marks
               </Button>
             </div>
           </div>
           <div className="border w-full flex flex-col mx-8 p-8 rounded-lg border-black h-full">
             <div className="text-5xl font-bold">Semester 2</div>
-            <div className="mt-4 font-semibold text-lg">Status : Released</div>
+            <div className="mt-4 font-semibold text-lg">
+              Status :{" "}
+              {semesters?.filter((x) => x.id === 2)[0]?.released
+                ? "Released"
+                : "Not Released"}
+            </div>
             <div className="mt-6">Assigned assessments:</div>
             <List
               size="small"
@@ -52,10 +107,15 @@ function SemesterContainer() {
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
             <div className="mt-4 self-end place-self-end">
-              <Button className="mr-6" danger>
+              <Button className="mr-6" danger onClick={() => releaseMarks(2)}>
                 Release marks
               </Button>
-              <Button className="" type="text" danger>
+              <Button
+                className=""
+                type="text"
+                danger
+                onClick={() => withholdMarks(2)}
+              >
                 Withdraw marks
               </Button>
             </div>
