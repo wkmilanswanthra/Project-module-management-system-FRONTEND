@@ -190,6 +190,14 @@ function AddPublication() {
             name="file"
             listType="picture"
             action={"http://localhost:3000/api/v1/publications/upload"}
+            type=""
+            beforeUpload={(file) => {
+              const isPNG = file.type === "image/png";
+              if (!isPNG) {
+                message.error(`${file.name} is not a png file`);
+              }
+              return isPNG || Upload.LIST_IGNORE;
+            }}
             onChange={(info) => {
               if (info.file.xhr) {
                 console.log(JSON.parse(info.file.xhr.response));
@@ -228,6 +236,13 @@ function AddPublication() {
             name="file"
             listType="picture"
             action={"http://localhost:3000/api/v1/publications/upload"}
+            beforeUpload={(file) => {
+              const isPNG = file.type === "image/png";
+              if (!isPNG) {
+                message.error(`${file.name} is not a png file`);
+              }
+              return isPNG || Upload.LIST_IGNORE;
+            }}
             onChange={(info) => {
               if (info.file.xhr) {
                 console.log(JSON.parse(info.file.xhr.response));
