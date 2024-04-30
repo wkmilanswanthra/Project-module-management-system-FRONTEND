@@ -12,6 +12,7 @@ import marksReducer from "../features/marks/store/marks.slice";
 import scheduleReducer from "../features/schedule/store/schedule.slice";
 import publicationReducer from "../features/publications/store/publication.slice";
 import semesterReducer from "../features/semester/store/semester.slice";
+import marksheetReducer from "../features/marksheet/store/marksheet.slice";
 
 const store = configureStore({
   reducer: {
@@ -26,6 +27,7 @@ const store = configureStore({
     schedule: scheduleReducer,
     publication: publicationReducer,
     semester: semesterReducer,
+    marksheet: marksheetReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(logger),

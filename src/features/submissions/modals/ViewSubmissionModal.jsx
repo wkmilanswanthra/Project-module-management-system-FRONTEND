@@ -26,8 +26,8 @@ function ViewSubmissionModal({ open, setOpen }) {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold">Assessment Title</h3>
                   <p>
-                    {submission?.assessmentId?.title} -{" "}
-                    {submission?.assessmentId?.assessmentType}
+                    {submission?.assessment?.title} -{" "}
+                    {submission?.assessment?.assessmentType}
                   </p>
                 </div>
               </div>
@@ -50,11 +50,11 @@ function ViewSubmissionModal({ open, setOpen }) {
                   <h3 className="text-lg font-semibold">Due Date</h3>
                   <p>
                     {new Date(
-                      submission?.assessmentId?.dueDate
+                      submission?.assessment?.dueDate
                     ).toLocaleDateString()}{" "}
                     -{" "}
                     {new Date(
-                      submission?.assessmentId?.dueDate
+                      submission?.assessment?.dueDate
                     ).toLocaleTimeString()}
                   </p>
                 </div>

@@ -109,7 +109,7 @@ function SubmissionsContainer() {
           <SortDescendingOutlined />
         ),
       render: (text, record) => (
-        <Text>{`${record?.assessmentId?.title} - ${record?.assessmentId?.assessmentType}`}</Text>
+        <Text>{`${record?.assessment?.title} - ${record?.assessment?.assessmentType}`}</Text>
       ),
     },
     {

@@ -32,10 +32,10 @@ function AssessmentContainer() {
   }, [id]);
 
   useEffect(() => {
-    if (project?.project) {
-      dispatch(getSubmissionByProjectId(project.project.id));
+    if (project.project[0]) {
+      dispatch(getSubmissionByProjectId(project.project[0].id));
     }
-  }, [project?.project]);
+  }, [project.project]);
 
   // useEffect(() => {
   //   if (semesters.length > 0) {

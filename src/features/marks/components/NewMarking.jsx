@@ -37,7 +37,7 @@ const NewMarking = () => {
     dispatch(getSubmission(id))
       .then((res) => {
         if (res.payload) {
-          dispatch(getRubricByAssessmentId(res.payload.assessmentId.id)).then(
+          dispatch(getRubricByAssessmentId(res.payload.assessment.id)).then(
             (res) => {
               if (res.payload) {
                 const rubricData = res.payload.criteria.rubric.map(
@@ -391,13 +391,13 @@ const NewMarking = () => {
         </h2>
         <p className="text-gray-700">
           {" "}
-          {submission?.assessmentId?.title} -{" "}
-          {submission?.assessmentId?.assessmentType}
+          {submission?.assessment?.title} -{" "}
+          {submission?.assessment?.assessmentType}
         </p>
       </div>
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-gray-900">Description:</h2>
-        <p className="text-gray-700">{submission?.assessmentId?.description}</p>
+        <p className="text-gray-700">{submission?.assessment?.description}</p>
       </div>
       <Form
         disabled={loading}
