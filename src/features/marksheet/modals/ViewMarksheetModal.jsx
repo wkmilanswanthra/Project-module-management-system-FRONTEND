@@ -50,7 +50,7 @@ function ViewMarksheetModal({ open, setOpen }) {
       {marksheet && (
         <Modal
           title="View Marksheet"
-          visible={open}
+          open={open}
           onCancel={() => setOpen(false)}
           width={800}
           footer={null}
