@@ -178,7 +178,7 @@ function MarksheetsContainer() {
       title: "Marksheet ID",
       dataIndex: "id",
       key: "id",
-      sorter: (a, b) => a.marksheetId.localeCompare(b.marksheetId),
+      sorter: (a, b) => a.id.toString().localeCompare(b.id.toString()),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
@@ -203,7 +203,8 @@ function MarksheetsContainer() {
       dataIndex: "studentName",
       key: "studentName",
       render: (text, record) => <Text>{record?.marksheet?.student?.name}</Text>,
-      sorter: (a, b) => a.student.name.localeCompare(b.student.name),
+      sorter: (a, b) =>
+        a.marksheet?.student?.name.localeCompare(b.marksheet?.student?.name),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
@@ -215,7 +216,8 @@ function MarksheetsContainer() {
       title: "Project ID",
       dataIndex: "projectId",
       key: "projectId",
-      sorter: (a, b) => a.projectId.localeCompare(b.projectId),
+      sorter: (a, b) =>
+        a.projectId.toString().localeCompare(b.projectId.toString()),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
