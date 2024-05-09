@@ -72,7 +72,7 @@ function ViewMarksheetModal({ open, setOpen }) {
             <div className="flex mt-8">
               <div className="flex-1">
                 <h3 className="text-lg font-semibold">Marks</h3>
-                {marksheet.marksheet.marks.map((assessment, index) => (
+                {marksheet?.marksheet?.marks?.map((assessment, index) => (
                   <div key={index}>
                     <h4 className="text-md font-semibold">
                       {assessment.assessment.title}
