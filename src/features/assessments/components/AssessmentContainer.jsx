@@ -54,7 +54,7 @@ function AssessmentContainer() {
     let x = [];
     if (submission?.submissions.length == 0) return;
     submission?.submissions?.forEach((submission) => {
-      if (submission.assessmentId.id.toString() === id) {
+      if (submission?.assessmentId?.toString() === id) {
         setY(submission);
       }
     });

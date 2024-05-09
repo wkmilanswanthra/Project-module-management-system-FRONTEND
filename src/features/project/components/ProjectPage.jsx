@@ -48,7 +48,7 @@ function ProjectPage() {
       assessment.assessments.forEach((assessment) => {
         z++;
         submissions?.submissions?.forEach((submission) => {
-          if (submission.assessmentId.id === assessment.id) {
+          if (submission.assessmentId === assessment.id) {
             x.push({ ...assessment, status: "Submitted" });
             y++;
           } else {

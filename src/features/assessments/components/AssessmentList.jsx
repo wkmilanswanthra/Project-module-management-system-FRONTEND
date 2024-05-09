@@ -25,7 +25,7 @@ function AssessmentList() {
       const x = [];
       assessment.assessments.forEach((assessment) => {
         submissions?.submissions?.forEach((submission) => {
-          if (submission.assessmentId.id === assessment.id) {
+          if (submission.assessmentId === assessment.id) {
             x.push({ ...assessment, status: true });
           } else {
             x.push({ ...assessment, status: false });
