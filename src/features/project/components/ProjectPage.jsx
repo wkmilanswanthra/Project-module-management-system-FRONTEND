@@ -1,10 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Progress, Table, Avatar, Card, ConfigProvider, Tag } from "antd";
+import {
+  Progress,
+  Table,
+  Avatar,
+  Card,
+  ConfigProvider,
+  Tag,
+  Alert,
+} from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllAssessments } from "../../assessments/api";
 import { getSubmissionByProjectId } from "../../submissions/api";
 import { useNavigate } from "react-router-dom";
+import { getAllSemesters } from "./../../semester/api/index";
 
 const { Column } = Table;
 const { Meta } = Card;
@@ -20,6 +29,8 @@ function ProjectPage() {
   const submissions = useSelector((state) => state.submission);
   const [percent, setPercent] = useState(0);
   const [assessments, setAssessments] = useState([]);
+  const [semesterOneReleased, setSemesterOneReleased] = useState(false);
+  const [semesterTwoReleased, setSemesterTwoReleased] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,6 +41,17 @@ function ProjectPage() {
     }
     dispatch(getAllAssessments()).then((res) => {
       setAssessments(res.payload);
+    });
+    dispatch(getAllSemesters()).then((res) => {
+      console.log(res);
+      res.payload.forEach((semester) => {
+        if (semester.id === 1 && semester.released) {
+          setSemesterOneReleased(true);
+        }
+        if (semester.id === 2 && semester.released) {
+          setSemesterTwoReleased(true);
+        }
+      });
     });
   }, []);
 
@@ -106,6 +128,22 @@ function ProjectPage() {
       <h1 className="text-4xl font-bold text-gray-900 mb-8 mt-4">
         {projectData.title}
       </h1>
+      {semesterOneReleased && (
+        <Alert
+          message="Semester 1 marks have been released"
+          type="success"
+          closable
+          className="mb-4"
+        />
+      )}
+      {semesterTwoReleased && (
+        <Alert
+          message="Semester 2 marks have been released"
+          type="success"
+          closable
+          className="mb-4"
+        />
+      )}
       <div className="w-full flex justify-between mt-16">
         <div className="mb-8 flex-1">
           <h2 className="text-2xl font-semibold mb-4">Research Group</h2>

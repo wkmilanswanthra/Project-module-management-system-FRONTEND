@@ -45,7 +45,21 @@ function MarksheetsContainer() {
 
   const onSearch = (value) => {
     const filteredData = marksheets.filter((record) => {
-      return record.marksheetId.toLowerCase().includes(value.toLowerCase());
+      return (
+        record.id.toString().toLowerCase().includes(value.toLowerCase()) ||
+        record.studentId
+          .toString()
+          .toLowerCase()
+          .includes(value.toLowerCase()) ||
+        record.marksheet.student.name
+          .toString()
+          .toLowerCase()
+          .includes(value.toLowerCase()) ||
+        record.marksheet.project.id
+          .toString()
+          .toLowerCase()
+          .includes(value.toLowerCase())
+      );
     });
     setSearchData(filteredData);
   };

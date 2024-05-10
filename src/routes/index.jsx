@@ -96,30 +96,31 @@ const ApplicationRoutes = () => {
           }
         })}
       </Route>
-      {getAuthRoutes().map((route, index) => {
-        if (route.childRoutes.length > 0) {
-          return (
-            <Route
-              key={index}
-              path={route.path}
-              element={route.element}
-              childRoutes={route.childRoutes}
-            >
-              {route.childRoutes.map((childRoute, index) => (
-                <Route
-                  key={index}
-                  path={childRoute.path}
-                  element={childRoute.element}
-                />
-              ))}
-            </Route>
-          );
-        } else {
-          return (
-            <Route key={index} path={route.path} element={route.element} />
-          );
-        }
-      })}
+      {!isLoggedIn &&
+        getAuthRoutes().map((route, index) => {
+          if (route.childRoutes.length > 0) {
+            return (
+              <Route
+                key={index}
+                path={route.path}
+                element={route.element}
+                childRoutes={route.childRoutes}
+              >
+                {route.childRoutes.map((childRoute, index) => (
+                  <Route
+                    key={index}
+                    path={childRoute.path}
+                    element={childRoute.element}
+                  />
+                ))}
+              </Route>
+            );
+          } else {
+            return (
+              <Route key={index} path={route.path} element={route.element} />
+            );
+          }
+        })}
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

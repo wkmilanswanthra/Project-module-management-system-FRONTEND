@@ -29,6 +29,7 @@ const { Search } = Input;
 function SubmissionsContainer() {
   const [searchData, setSearchData] = React.useState([]);
   const { submissions, loading, error } = useSelector((state) => state.faculty);
+  const { role } = useSelector((state) => state.auth);
 
   const [open, setOpen] = React.useState(false);
 
@@ -38,8 +39,12 @@ function SubmissionsContainer() {
     getTableData();
   }, []);
 
+  useEffect(() => {
+    getTableData();
+  }, [role]);
+
   const getTableData = () => {
-    dispatch(fetchAllSubmissions())
+    dispatch(fetchAllSubmissions(role))
       .then((res) => {
         if (res.payload) {
           setSearchData(res.payload);
@@ -76,7 +81,7 @@ function SubmissionsContainer() {
       title: "Submission ID",
       dataIndex: "id",
       key: "id",
-      sorter: (a, b) => a.id.localeCompare(b.id),
+      sorter: (a, b) => a?.id?.localeCompare(b?.id),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
@@ -88,7 +93,7 @@ function SubmissionsContainer() {
       title: "Group Name",
       dataIndex: "groupName",
       key: "groupName",
-      sorter: (a, b) => a.groupName.localeCompare(b.assessmentTitle),
+      sorter: (a, b) => a?.groupName?.localeCompare(b?.assessmentTitle),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
@@ -101,7 +106,7 @@ function SubmissionsContainer() {
       title: "Assessment title",
       dataIndex: "assessmentTitle",
       key: "assessmentTitle",
-      sorter: (a, b) => a.assessmentTitle.localeCompare(b.assessmentTitle),
+      sorter: (a, b) => a?.assessmentTitle?.localeCompare(b?.assessmentTitle),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
@@ -116,7 +121,7 @@ function SubmissionsContainer() {
       title: "Date of Submission",
       dataIndex: "dateSubmitted",
       key: "dateSubmitted",
-      sorter: (a, b) => a.dateSubmitted.localeCompare(b.dateSubmitted),
+      sorter: (a, b) => a?.dateSubmitted?.localeCompare(b?.dateSubmitted),
       sortIcon: ({ sortOrder }) =>
         sortOrder === "ascend" ? (
           <SortAscendingOutlined />
@@ -138,12 +143,12 @@ function SubmissionsContainer() {
         <Space size="middle">
           <Button
             type="primary"
-            onClick={() => handleOpen(record.id)}
+            onClick={() => handleOpen(record?.id)}
             icon={<EyeOutlined />}
           />
           <Button
             type="primary"
-            onClick={() => navigate(`/marks/new/${record.id}`)}
+            onClick={() => navigate(`/marks/new/${record?.id}`)}
             icon={<EditOutlined />}
           />
           <Button type="danger" icon={<DeleteOutlined />} />

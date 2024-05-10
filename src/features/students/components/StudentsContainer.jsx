@@ -167,29 +167,29 @@ function StudentsContainer() {
         ),
       filterIcon: (filtered) => <SearchOutlined style={{ color: "#fff" }} />,
     },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (text, record) => (
-        <Space size="middle">
-          <Button
-            type="primary"
-            onClick={() => updateStudentModal(record)}
-            icon={<EditOutlined />}
-          />
-          <Popconfirm
-            title="Delete the student"
-            description="Are you sure to delete this student?"
-            onConfirm={handleDelete.bind(this, record.id)}
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button type="danger" icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
-      align: "center",
-    },
+    // {
+    //   title: "Actions",
+    //   key: "actions",
+    //   render: (text, record) => (
+    //     <Space size="middle">
+    //       <Button
+    //         type="primary"
+    //         onClick={() => updateStudentModal(record)}
+    //         icon={<EditOutlined />}
+    //       />
+    //       <Popconfirm
+    //         title="Delete the student"
+    //         description="Are you sure to delete this student?"
+    //         onConfirm={handleDelete.bind(this, record.id)}
+    //         okText="Yes"
+    //         cancelText="No"
+    //       >
+    //         <Button type="danger" icon={<DeleteOutlined />} />
+    //       </Popconfirm>
+    //     </Space>
+    //   ),
+    //   align: "center",
+    // },
   ];
 
   const fetchStudents = async () => {

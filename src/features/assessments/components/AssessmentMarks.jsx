@@ -209,7 +209,7 @@ function AssessmentMarks({ data }) {
           <div>
             <div className="text-lg font-semibold mb-4">Percentage:</div>
             <div className="text-5xl font-semibold mb-4">
-              {summary?.percentage?.toFixed(2)}%
+              {(summary?.percentage / 5).toFixed(2)}%
             </div>
             <div className="text-lg font-semibold mb-4">Grade:</div>
             <div

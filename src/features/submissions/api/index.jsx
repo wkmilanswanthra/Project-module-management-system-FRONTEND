@@ -4,9 +4,9 @@ import makeApi from "./../../../config/axiosConfig";
 
 export const fetchAllSubmissions = createAsyncThunk(
   "submissions/fetchAllSubmissions",
-  async (_, { rejectWithValue }) => {
+  async (role, { rejectWithValue }) => {
     try {
-      const response = await makeApi().get("/submissions");
+      const response = await makeApi().get(`/submissions?role=${role}`);
       return response.data;
     } catch (error) {
       if (error.response && error.response.data.message) {
