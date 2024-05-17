@@ -52,7 +52,7 @@ const StudentRegisterContainer = () => {
         openNotificationWithIcon(
           "error",
           "An error occured",
-          "There was and error while creating new user"
+          "There was and error while creating new user. Please try again."
         );
       });
   };
