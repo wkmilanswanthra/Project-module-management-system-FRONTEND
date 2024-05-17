@@ -151,7 +151,7 @@ function SubmissionsContainer() {
             onClick={() => navigate(`/marks/new/${record?.id}`)}
             icon={<EditOutlined />}
           />
-          <Button type="danger" icon={<DeleteOutlined />} />
+          {/* <Button type="danger" icon={<DeleteOutlined />} /> */}
         </Space>
       ),
       width: "20%",

@@ -12,6 +12,7 @@ import {
 import { openNotificationWithIcon } from "../../../util/notifications.jsx";
 import { getAllProjects } from "../../project/api/index.jsx";
 import { useNavigate, useParams } from "react-router-dom";
+import { DatePicker } from "antd";
 
 const { Option } = Select;
 
@@ -116,7 +117,7 @@ const CreateSchedule = () => {
     if (isUpdate) {
       dispatch(updateSchedule(values))
         .then((res) => {
-          if (res) {
+          if (!res.error) {
             openNotificationWithIcon(
               "success",
               "Done",
@@ -124,7 +125,8 @@ const CreateSchedule = () => {
             );
             navigate("/schedule");
           } else {
-            openNotificationWithIcon("error", "Error", "Something went wrong");
+            openNotificationWithIcon("error", "Error", res.error.message);
+            console.log(res.error);
           }
         })
         .catch((error) => {
@@ -134,7 +136,7 @@ const CreateSchedule = () => {
     }
     dispatch(createSchedule(values))
       .then((res) => {
-        if (res) {
+        if (!res.error) {
           openNotificationWithIcon(
             "success",
             "Done",
@@ -142,12 +144,21 @@ const CreateSchedule = () => {
           );
           navigate("/schedule");
         } else {
-          openNotificationWithIcon("error", "Error", "Something went wrong");
+          openNotificationWithIcon("error", "Error", res.payload);
+          console.log(res.error);
         }
       })
       .catch((error) => {
         openNotificationWithIcon("error", "Error", error.message);
       });
+  };
+
+  const validateEndTime = (rule, value) => {
+    const startTime = form.getFieldValue("startTime");
+    if (startTime && value && value <= startTime) {
+      return Promise.reject("End time must be after start time!");
+    }
+    return Promise.resolve();
   };
 
   return (
@@ -197,7 +208,10 @@ const CreateSchedule = () => {
         <Form.Item
           label="End Time"
           name="endTime"
-          rules={[{ required: true, message: "Please select a end time!" }]}
+          rules={[
+            { required: true, message: "Please select a end time!" },
+            { validator: validateEndTime },
+          ]}
         >
           <Input type="time" />
         </Form.Item>
@@ -239,8 +253,8 @@ const CreateSchedule = () => {
               validator(_, value) {
                 if (
                   !value ||
-                  (getFieldValue("examiner2") !== value) &
-                    (getFieldValue("examiner3") !== value)
+                  (getFieldValue("examiner2Id") !== value) &
+                    (getFieldValue("examiner3Id") !== value)
                 ) {
                   return Promise.resolve();
                 }
@@ -267,8 +281,8 @@ const CreateSchedule = () => {
               validator(_, value) {
                 if (
                   !value ||
-                  (getFieldValue("examiner1") !== value) &
-                    (getFieldValue("examiner3") !== value)
+                  (getFieldValue("examiner1Id") !== value) &
+                    (getFieldValue("examiner3Id") !== value)
                 ) {
                   return Promise.resolve();
                 }
@@ -295,8 +309,8 @@ const CreateSchedule = () => {
               validator(_, value) {
                 if (
                   !value ||
-                  (getFieldValue("examiner1") !== value) &
-                    (getFieldValue("examiner2") !== value)
+                  (getFieldValue("examiner1Id") !== value) &
+                    (getFieldValue("examiner2Id") !== value)
                 ) {
                   return Promise.resolve();
                 }

@@ -24,6 +24,7 @@ import { getAllProjects, deleteProject } from "../api";
 import { useDispatch, useSelector } from "react-redux";
 import { openNotificationWithIcon } from "../../../util/notifications";
 import { renderRow } from "../table/ExpandRow";
+import { Roles } from "./../../../assets/constants";
 
 const { Text } = Typography;
 const { Search } = Input;
@@ -31,6 +32,7 @@ const { Search } = Input;
 function ProjectsContainer() {
   const [searchData, setSearchdata] = React.useState([]);
   const { projects, loading, error } = useSelector((state) => state.project);
+  const { user, role } = useSelector((state) => state.auth);
 
   const dispatch = useDispatch();
 
@@ -38,10 +40,21 @@ function ProjectsContainer() {
     fetchAllProjects();
   }, []);
 
+  const getRelevantProjects = () => {
+    if (role === Roles.CO_SUPERVISOR || role === Roles.SUPERVISOR) {
+      return projects.filter(
+        (project) =>
+          project.supervisor.id === user.id ||
+          project.coSupervisor.id === user.id
+      );
+    }
+    return projects;
+  };
+
   const fetchAllProjects = () => {
     dispatch(getAllProjects())
       .then((res) => {
-        setSearchdata(res.payload);
+        setSearchdata(getRelevantProjects());
       })
       .catch((err) => {
         openNotificationWithIcon("error", "Error", "Failed to fetch projects");
@@ -50,7 +63,7 @@ function ProjectsContainer() {
   };
 
   const onSearch = (value) => {
-    const filteredData = projects.filter((record) => {
+    const filteredData = getRelevantProjects().filter((record) => {
       const searchTerm = value.toLowerCase();
       const supervisor = record.supervisor
         ? record.supervisor.name.toLowerCase()
@@ -217,7 +230,7 @@ function ProjectsContainer() {
             onSearch={onSearch}
             onChange={(e) => {
               if (e.target.value === "") {
-                setSearchdata(projects);
+                setSearchdata(getRelevantProjects());
               }
             }}
             style={{

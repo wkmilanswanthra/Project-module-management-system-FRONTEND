@@ -1,10 +1,22 @@
 import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { Alert } from "antd";
 
 function Welcome({ project }) {
+  const { emailVerified } = useSelector((state) => state.auth);
   return (
     <div className="flex flex-col items-center justify-center h-full">
+      {emailVerified === false && (
+        <Alert
+          message="Email not verified"
+          description="Please verify your email to continue."
+          type="warning"
+          showIcon
+          closable
+          className="absolute top-32 w-[80%]"
+        />
+      )}
       <h1 className="text-4xl font-bold text-gray-900 mb-8">
         Welcome to Grade Master
       </h1>
