@@ -47,6 +47,7 @@ const authSlice = createSlice({
           prioritizedRoles.find((role) =>
             action.payload.user.role.includes(role)
           ) || Roles.STUDENT;
+        state.emailVerified = action.payload.user.isVerified;
 
         state.project = action.payload.project || null;
         state.isLoggedIn = true;
@@ -68,6 +69,8 @@ const authSlice = createSlice({
           prioritizedRoles.find((role) =>
             action.payload.user.role.includes(role)
           ) || Roles.STUDENT;
+        state.emailVerified = action.payload.user.isVerified;
+
         state.project = action.payload.project || null;
         state.isLoggedIn = true;
       })
@@ -89,6 +92,8 @@ const authSlice = createSlice({
           prioritizedRoles.find((role) =>
             action.payload.user.role.includes(role)
           ) || Roles.STUDENT;
+        state.emailVerified = action.payload.user.isVerified;
+
         state.project = action.payload.project || null;
         state.isLoggedIn = true;
       })
