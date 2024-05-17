@@ -17,6 +17,16 @@ function Welcome({ project }) {
           className="absolute top-32 w-[80%]"
         />
       )}
+      {emailVerified === true && (
+        <Alert
+          message="Email verified"
+          description="You can now create or join a project."
+          type="success"
+          showIcon
+          closable
+          className="absolute top-32 w-[80%]"
+        />
+      )}
       <h1 className="text-4xl font-bold text-gray-900 mb-8">
         Welcome to Grade Master
       </h1>
