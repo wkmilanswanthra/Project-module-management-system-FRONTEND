@@ -40,6 +40,10 @@ function ProjectsContainer() {
     fetchAllProjects();
   }, []);
 
+  useEffect(() => {
+    setSearchdata(getRelevantProjects());
+  }, [projects]);
+
   const getRelevantProjects = () => {
     if (role === Roles.CO_SUPERVISOR || role === Roles.SUPERVISOR) {
       return projects.filter(
@@ -54,7 +58,14 @@ function ProjectsContainer() {
   const fetchAllProjects = () => {
     dispatch(getAllProjects())
       .then((res) => {
-        setSearchdata(getRelevantProjects());
+        let filtered = [];
+        if (role === Roles.CO_SUPERVISOR || role === Roles.SUPERVISOR)
+          filtered = res.payload.filter(
+            (project) =>
+              project.supervisor.id === user.id ||
+              project.coSupervisor.id === user.id
+          );
+        setSearchdata(filtered > 0 ? filtered : res.payload);
       })
       .catch((err) => {
         openNotificationWithIcon("error", "Error", "Failed to fetch projects");
