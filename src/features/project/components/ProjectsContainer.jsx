@@ -65,7 +65,8 @@ function ProjectsContainer() {
               project.supervisor.id === user.id ||
               project.coSupervisor.id === user.id
           );
-        setSearchdata(filtered > 0 ? filtered : res.payload);
+        console.log(filtered);
+        setSearchdata(filtered.length > 0 ? filtered : res.payload);
       })
       .catch((err) => {
         openNotificationWithIcon("error", "Error", "Failed to fetch projects");

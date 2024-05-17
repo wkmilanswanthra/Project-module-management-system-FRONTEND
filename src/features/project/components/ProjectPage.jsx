@@ -70,11 +70,14 @@ function ProjectPage() {
       assessment.assessments.forEach((assessment) => {
         z++;
         submissions?.submissions?.forEach((submission) => {
-          if (submission.assessmentId === assessment.id) {
-            x.push({ ...assessment, status: "Submitted" });
-            y++;
-          } else {
-            x.push({ ...assessment, status: "Not Submitted" });
+          const exists = x.find((a) => a.id === assessment.id);
+          if (!exists) {
+            if (submission.assessmentId === assessment.id) {
+              x.push({ ...assessment, status: "Submitted" });
+              y++;
+            } else {
+              x.push({ ...assessment, status: "Not Submitted" });
+            }
           }
         });
       });

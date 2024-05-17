@@ -25,13 +25,17 @@ function AssessmentList() {
       const x = [];
       assessment.assessments.forEach((assessment) => {
         submissions?.submissions?.forEach((submission) => {
-          if (submission.assessmentId === assessment.id) {
-            x.push({ ...assessment, status: true });
-          } else {
-            x.push({ ...assessment, status: false });
+          const exists = x.find((a) => a.id === assessment.id);
+          if (!exists) {
+            if (submission.assessmentId === assessment.id) {
+              x.push({ ...assessment, status: true });
+            } else {
+              x.push({ ...assessment, status: false });
+            }
           }
         });
       });
+      console.log("x", x);
       setAssessments(x);
     } else {
       dispatch(getAllAssessments()).then((res) => {

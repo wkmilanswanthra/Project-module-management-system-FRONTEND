@@ -25,11 +25,13 @@ function AssessmentMarks({ data }) {
 
   const id = useParams().id;
 
+  console.log("data", data);
+
   useEffect(() => {
     dispatch(getScheduleByAssessmentId(id));
     dispatch(getRubricByAssessmentId(id));
     dispatch(getMarkingBySubmissionId(data?.id));
-    setAssessmentType(data?.assessmentId?.assessmentType);
+    setAssessmentType(data?.assessment?.assessmentType);
   }, []);
 
   useEffect(() => {
@@ -37,6 +39,7 @@ function AssessmentMarks({ data }) {
       setRubricData(rubric.rubric.criteria.rubric);
     }
   }, [rubric?.rubric]);
+  console.log("assessmentType", assessmentType);
 
   useEffect(() => {
     if (marks?.marking?.marking) {
@@ -73,7 +76,7 @@ function AssessmentMarks({ data }) {
         ];
         const supervisorId = project[0].supervisor.id;
         const coSupervisorId = project[0].coSupervisor.id;
-
+        console.log("mark", mark);
         const getAssessorType = (marker) => {
           if (examinerIds.includes(marker)) return "examiner";
           if (marker === supervisorId) return "supervisor";
@@ -84,6 +87,7 @@ function AssessmentMarks({ data }) {
         mark.marks.forEach((m) => {
           const assessorType = getAssessorType(mark.marker);
           if (!assessorType) return;
+          console.log("assessorType", assessorType);
 
           const assessorKey =
             assessorType + (assessorType === "examiner" ? mark.marker : "");
@@ -110,6 +114,7 @@ function AssessmentMarks({ data }) {
       });
       return updatedCriteria;
     });
+    console.log("updatedTableData", updatedTableData);
     setTableData(updatedTableData);
     rubricData.forEach((criteria) => {
       totalWeightage += criteria.weightage;
@@ -141,21 +146,21 @@ function AssessmentMarks({ data }) {
         dataIndex: "examiner1",
         key: "key",
         align: "center",
-        render: (text, record) => <p>{record.examiner1.total}</p>,
+        render: (text, record) => <p>{record?.examiner1?.total}</p>,
       },
       {
         title: "Examiner 2 Total",
         dataIndex: "examiner2",
         key: "key",
         align: "center",
-        render: (text, record) => <p>{record.examiner2.total}</p>,
+        render: (text, record) => <p>{record?.examiner2?.total}</p>,
       },
       {
         title: "Examiner 3 Total",
         dataIndex: "examiner3",
         key: "key",
         align: "center",
-        render: (text, record) => <p>{record.examiner3.total}</p>,
+        render: (text, record) => <p>{record?.examiner3?.total}</p>,
       }
     );
   } else {
